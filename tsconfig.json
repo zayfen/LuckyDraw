@@ -1,14 +1,19 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
     "module": "commonjs",
     "target": "es2017",
     "noImplicitAny": true,
     "outDir": "./dist",
     "sourceMap": true,
     "experimentalDecorators": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./front/src/*"]
+    }
   },
   "include": [
     "./src/***/*"
-  ]
+  ],
+  "exclude": ["node_modules", "dist"]
 }
