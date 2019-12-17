@@ -1,8 +1,10 @@
 <template>
-  <div class="lucky-image-bed">
-    <el-row>
+  <div class="lucky-image-grid">
+    <div class="grid">
+      <div class="grid-item">
 
-    </el-row>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -58,5 +60,16 @@ export default {
   width: 100%;
   height: 100%;  
 }
+
+.grid {
+  width: 100%;
+  height: auto;
+  margin: 0 auto;
+
+  .grid-item {
+    
+  }
+}
+
 
 </style>
