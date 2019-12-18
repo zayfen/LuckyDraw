@@ -12,10 +12,10 @@
         <van-button plain type="default" style="width: 4.4rem">随机人脸</van-button>
       </van-col>
     </van-row>
-    <van-row style="margin-top: 10px;">
-      <van-image :src="avatar" width="6rem" height="6rem" :round="true" fit="cover">
+
+      <van-image :src="avatar" width="8rem" height="8rem" style="margin-top: 1rem;overflow: hidden;" round fit="cover">
       </van-image>
-    </van-row>
+
     <van-row class="form">
       <van-field v-model="userName" label="用户名:" placeholder="请输入姓名" />
     </van-row>
@@ -28,6 +28,9 @@
 
 <script>
 import {Notify} from 'vant'
+import { rotateAndCompressImg } from '@/utils/compress-img'
+import { upload } from '@/utils/upload_api'
+
 export default {
   data () {
     return {
@@ -49,7 +52,13 @@ export default {
 
     afterRead (file) {
       console.log("file: ", file)
-
+      rotateAndCompressImg(file.file).then(contentAndFile => {
+        upload('img', contentAndFile.file).then(res => {
+          if (res.code === 0) {
+            this.avatar = res.data.visit_url
+          }
+        })
+      })
     },
 
     toast (message, type="success") {
