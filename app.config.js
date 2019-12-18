@@ -1,11 +1,15 @@
 
-{
+let path = require('path')
+
+const INTERPRETER_PATH = path.resolve(__dirname, './node_modules/.bin/ts-node')
+
+const CONFIG = {
   "apps" : [{
     "name": "luckydraw",
+    // "interpreter": INTERPRETER_PATH,
+    // "interpreter_args": "-P ./ -r tsconfig-paths/register",
     "script": "./src/server.ts",
-    "cwd": "./",
-    "interpreter": "/home/zayfen/Github/LuckyDraw/node_modules/pm2/node_modules/.bin/ts-node",
-    "interpreter_args": "-P /home/zayfen/Github/luckydraw/ -r tsconfig-paths/register",
+    "cwd": ".",
     "instances" : "2",
     "exec_mode": "cluster",
     "watch": ["src"],
@@ -21,3 +25,7 @@
     }
   }]
 }
+
+console.log('app.config.js: ', CONFIG)
+
+module.exports = CONFIG

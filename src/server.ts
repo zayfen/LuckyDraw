@@ -1,6 +1,10 @@
+import * as path from 'path'
 import * as Koa from 'koa'
 import * as Router from 'koa-router'
 import * as cors from 'koa2-cors'
+import * as serve from 'koa-static'
+import * as mount from 'koa-mount'
+
 import { boot } from './core/boot'
 
 const app = new Koa()
@@ -39,6 +43,11 @@ app.use(cors({
   origin: 'http://localhost:8081',
   credentials: true
 }))
+
+// render view
+const StaticDir: string = path.join(__dirname, '../front/dist/')
+app.use(serve(StaticDir))
+app.use(mount('/register', serve(StaticDir)))
 
 app.use(router.routes())
 app.use(router.allowedMethods())

@@ -15,8 +15,6 @@ class Index implements BaseRouter {
 
   // 获取name
   // Method: GET
-  @MIDDLEWARE('mark')
-  @MIDDLEWARE('auth')
   @GET("/")
   public GetRoot(ctx: Koa.Context) {
     ctx.body = "GetName: Hello World"
