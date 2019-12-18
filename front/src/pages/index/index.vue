@@ -142,7 +142,6 @@ export default {
 
   // background: linear-gradient(#373b44, #4286f4);
   background: linear-gradient(#ccc, @mainColor);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 30px;
 
   .title {
