@@ -45,7 +45,7 @@ export default {
   margin: 0 auto;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: start;
+  justify-content: center;
   align-items: flex-start;
 
   .grid-item {

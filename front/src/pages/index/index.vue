@@ -10,9 +10,21 @@
       </el-col>
       <el-col :span="12">
         <div class="luckydraw-main">
-          <el-button size="large" :type="running ? 'warning' : 'primary'" class="luckydraw-main__button" @click="onButtonClick">{{running ? '产生幸运儿...' : '开始抽奖'}}</el-button>
+          <el-button size="large" 
+              :round="true"
+              :type="running ? 'danger' : 'primary'" 
+              class="luckydraw-main__button" 
+              @click="onButtonClick">{{running ? '产生幸运儿...' : '开始抽奖'}}</el-button>
           <div class="luckydraw-main__image">
-            <h3 v-show="randomIndex > -1" style="color: red;">{{ participantList[randomIndex] && participantList[randomIndex].name}}</h3>
+            <h3 v-show="randomIndex > -1">{{ participantList[randomIndex] && participantList[randomIndex].name}}</h3>
+            <div class="luckydraw-main__image-viewport">
+              <div class="img-bg" 
+                v-for="(img, index) in participantList" 
+                :key="index" 
+                :style="{backgroundImage: 'url(' + img.src + ')', zIndex: index === randomIndex ? '1' : '0'}">
+              </div>
+              <div class="img-bg img-bg__cover"></div>
+            </div>
           </div>
         </div>
       </el-col>
@@ -23,14 +35,20 @@
         </div>
       </el-col>
     </el-row>
+    <div class="lucky-register-container">
+      <lucky-register-qrcode :text="QrCodeText"></lucky-register-qrcode>
+    </div>
   </div>  
 </template>
 
 <script>
 import LuckyImageGrid from '@/components/lucky-image-grid/lucky-image-grid'
+import LuckyRegisterQrcode from '@/components/lucky-register-qrcode/lucky-register-qrcode'
+
 export default {
   components: {
-    LuckyImageGrid
+    LuckyImageGrid,
+    LuckyRegisterQrcode
   },
   data () {
     return {
@@ -65,6 +83,15 @@ export default {
     }
   },
 
+  computed: {
+    QrCodeText () {
+      let session = this.$route.query.session || 0
+      let protocol = window.location.protocol // http:  https:
+      let host = window.location.host // localhost:8081
+      return protocol + '//' + host + '/register?session=' + session
+    }
+  },
+
   methods: {
     onButtonClick () {
       if (this.running) {
@@ -96,7 +123,7 @@ export default {
 
     generateRandomIndex () {
       let length = Math.max(1, this.participantList.length)
-      let number = Math.ceil(Math.random() * Math.pow(10, ('' + length).length))
+      let number = Math.round(Math.random() * Math.pow(10, ('' + length).length))
       return number % length
     }
   }
@@ -104,6 +131,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@mainColor: #990008;
+
 .luckydraw {
   position: absolute;
   left: 0;
@@ -111,13 +140,14 @@ export default {
   right: 0;
   bottom: 0;
 
-  background: linear-gradient(#373b44, #4286f4);
+  // background: linear-gradient(#373b44, #4286f4);
+  background: linear-gradient(#ccc, @mainColor);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 30px;
 
   .title {
     text-align: center;
-    color: red;
+    color: @mainColor;
     margin-bottom: 0;
     padding: 0;
   }
@@ -128,9 +158,9 @@ export default {
   height: 820px;
   overflow: hidden;
   box-sizing: border-box;
-  border-top: 5px solid gray;
-  border-right: 5px solid gray;
-
+  border-top: 5px solid rgba(@mainColor, .3);
+  border-right: 5px solid rgba(@mainColor, .3);
+  border-radius: 50px;
 
   &__title {
     text-align: center;
@@ -153,6 +183,64 @@ export default {
     width: 330px;
     margin-top: 30px;
     font-size: 18px;
+    border-color: @mainColor;
+    &.el-button--danger {
+      background: rgba(@mainColor, .3);
+    }
+    &.el-button--primary {
+      background-color: @mainColor;
+    }
+  }
+
+  &__image {
+    position: absolute;
+    left: 50%;
+    top: 200px;
+    width: 300px;
+    transform: translateX(-50%);
+    h3 {
+      height: 65px;
+      line-height: 50px;
+      margin: 0;
+      padding: 0;
+      color: @mainColor;
+      font-size: 50px;
+      border-bottom: 2px dashed @mainColor;
+      box-sizing: border-box;
+    }
+
+    &-viewport {
+      position: absolute;
+      left: 0;
+      top: 80px;
+      width: 300px;
+      height: 300px;
+      overflow: hidden;
+      clip-path: circle(50%);
+
+      .img-bg {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 300px;
+        height: 300px;
+        background-size: 100% 100%;
+
+        &__cover {
+          position: absolute;
+          background: rgba(@mainColor, .8);
+
+          &::after {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            content: "等待抽奖...";
+            color: #fff;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -161,8 +249,9 @@ export default {
   height: 820px;
   overflow: hidden;
   box-sizing: border-box;
-  border-left: 5px solid gray;
-  border-top: 5px solid gray;
+  border-top: 5px solid rgba(@mainColor, .3);
+  border-left: 5px solid rgba(@mainColor, .3);
+  border-radius: 50px;
 
   &__title {
     text-align: center;
@@ -171,6 +260,23 @@ export default {
   &__wrapper {
     overflow: auto;
     height: 800px;
+  }
+}
+
+
+.lucky-register-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 80px;
+  padding: 5px;
+  background: rgba(#fff, .8);
+  transition: all .5s;
+  transform: scale(1);
+  transform-origin: left top;
+
+  &:hover {
+    transform: scale(8);
   }
 }
 </style>
