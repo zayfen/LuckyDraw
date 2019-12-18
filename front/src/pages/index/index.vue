@@ -85,10 +85,18 @@ export default {
 
   computed: {
     QrCodeText () {
-      let session = this.$route.query.session || 0
+      let validInteger  = str => !(Number.parseInt(str).toString() === 'NaN')
+
+      let session = this.$route.query.session || Date.now()
+      let interval = this.$route.query.interval || ''  // unit: minute
       let protocol = window.location.protocol // http:  https:
       let host = window.location.host // localhost:8081
-      return protocol + '//' + host + '/register?session=' + session
+
+      let registerUrl = `${protocol}//host/register?session=${session}`
+      if (interval && validInteger(interval)) {
+        registerUrl = `${registerUrl}&interval=${interval}`
+      }
+      return registerUrl
     }
   },
 
