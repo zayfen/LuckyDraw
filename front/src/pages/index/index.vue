@@ -92,7 +92,7 @@ export default {
       let protocol = window.location.protocol // http:  https:
       let host = window.location.host // localhost:8081
 
-      let registerUrl = `${protocol}//host/register?session=${session}`
+      let registerUrl = `${protocol}//${host}/register?session=${session}`
       if (interval && validInteger(interval)) {
         registerUrl = `${registerUrl}&interval=${interval}`
       }

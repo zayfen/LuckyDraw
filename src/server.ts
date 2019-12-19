@@ -59,6 +59,12 @@ app.on('error', (err, ctx) => {
 const PORT = process.env.PORT || 8000
 app.listen(PORT);
 
+
+// graceful shutdown here
+process.on('SIGINT', function (signal) {
+  console.log('graceful shutdown...')
+})
+
 console.log("Server Running On Port " + PORT)
 
 
