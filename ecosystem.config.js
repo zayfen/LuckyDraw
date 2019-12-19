@@ -1,15 +1,15 @@
 const path = require('path')
 
 const ProjectPath = path.resolve(__dirname)
-const InterpreterPath = path.join(ProjectPath, './node_modules/pm2/node_modules/.bin/ts-node')
-console.log("InterpreterPath: ", InterpreterPath)
+// const ScriptPath = path.join(ProjectPath, './node_modules/pm2/node_modules/.bin/ts-node')
+const ScriptPath = 'ts-node'
 
 const Config = {
   "apps" : [{
-      "name": "luckydraw",
-    "script": "./src/server.ts",
+    "name": "luckydraw",
+    "script": ScriptPath,
+    "args": "src/server.ts",
     "cwd": "./",
-    "interpreter": InterpreterPath,
     "instances" : "2",
     "exec_mode": "cluster",
     "watch": ["src"],

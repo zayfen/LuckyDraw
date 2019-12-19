@@ -7,9 +7,6 @@
     "local-dev": "pm2 -i 2 --name luckydraw start src/server.ts --watch",
     "dev": "pm2 start ecosystem.config.js",
     "start": "pm2 start ecosystem.config.js --env production",
-    "pm2-reload": "pm2 reload ecosystem.config.js",
-    "pm2-list": "pm2 list",
-    "pm2-stop": "pm2 stop luckydraw",
     "test": "mocha -r ts-node/register tests/**/*.ts"
   },
   "devDependencies": {
