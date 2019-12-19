@@ -9,7 +9,6 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "paths": {
-      "@/*": ["./front/src/*"]
     }
   },
   "include": [
