@@ -8,7 +8,7 @@ export function generatorQRCode (text) {
   return QRCode.toDataURL(text, {
     type: 'svg',
     margin: 0,
-    version: 5,
+    version: 6,
     errorCorrectionLevel: 'H',
     color: {
       dark: '#000',
