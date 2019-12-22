@@ -49,13 +49,14 @@ class Index implements BaseRouter {
     let session: string = ctx.query.session
     if (!WebSocketManager.getInstance().saveWebSocket(session, ctx.websocket)) {
       // websocket this session bound already existed.
+      console.log('websocket this session bound already existed')
       return ctx.websocket.close(100, 'websocket this session bound already existed')
     }
 
     console.log("session: ", session, 'websocket url: ', ctx.websocket)
     UserModel.find({ session: session }).then((docs: UserDocument[]) => {
       console.log('docs: ', docs)
-      ctx.websocket.send(JSON.stringify({ action: 'AllUsers', data: docs }))
+      WebSocketManager.getInstance().getWebSocket(session).send(JSON.stringify({ action: 'AllUsers', data: docs }))
     })
   }
 }
