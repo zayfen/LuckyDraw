@@ -32,6 +32,7 @@
 import {Notify} from 'vant'
 import { rotateAndCompressImg } from '@/utils/compress-img'
 import { upload } from '@/utils/upload_api'
+import Api from '@/api'
 
 const KEY_SESSION_HISTORY = 'key-session-history-of-luckdraw'
 
@@ -72,6 +73,10 @@ export default {
       return false
     },
 
+    clearSession () {
+      localStorage.removeItem(KEY_SESSION_HISTORY)
+    },
+
     preSessionExpired (preSession, thisSession) {
       if (!preSession) {
         return true
@@ -86,16 +91,24 @@ export default {
     },
 
     register () {
-      if (!this.validateAndSaveSession()) {
-        this.toast('您已参加此次抽奖活动', 'danger')
-        return
-      }
-      this.toast('参加成功')
+      // if (!this.validateAndSaveSession()) {
+      //   this.toast('您已参加此次抽奖活动', 'danger')
+      //   return
+      // }
 
+      Api.register(this.userName, this.avatar, this.session).then(res => {
+        if (res.code === 0) {
+          this.toast('参加成功')
+        } else if (res.code === 11000) { // duplicate user name
+          this.toast('此用户名已参加', 'warning')
+        } else {
+          // this.clearSession()
+          this.toast(res.message || '参加失败，请稍后重试', 'warning')
+        }
+      })
     },
 
     afterRead (file) {
-      console.log("file: ", file)
       rotateAndCompressImg(file.file).then(contentAndFile => {
         upload('img', contentAndFile.file).then(res => {
           if (res.code === 0) {

@@ -2,7 +2,7 @@ const path = require('path')
 
 const ProjectPath = path.resolve(__dirname)
 // const ScriptPath = path.join(ProjectPath, './node_modules/pm2/node_modules/.bin/ts-node')
-const ScriptPath = 'ts-node'
+const ScriptPath = './node_modules/.bin/ts-node'
 
 const Config = {
   "apps" : [{

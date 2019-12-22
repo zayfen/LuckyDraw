@@ -4,23 +4,33 @@ import * as Router from 'koa-router'
 import * as cors from 'koa2-cors'
 import * as serve from 'koa-static'
 import * as mount from 'koa-mount'
+import * as mongoose from 'mongoose'
+const websockify = require('koa-websocket')
 
 import { boot } from './core/boot'
-
-const app = new Koa()
-const router = new Router()
 import * as session from 'koa-session'
+
+import { UserModel, UserDocument } from './models/user'
+
+const app = websockify(new Koa())
+const router = new Router()
+const websocketRouter = new Router()
 
 app.keys = ['abcK2?xZ', '12D@KiS::)d', 'kSJDfkjwe(23r}{']
 
-app.use(async (ctx, next) => {
-  console.log("request: ", ctx.originalUrl)
-  // console.log("router.stack", router.stack)
-  try {
-    await next()  
-  } catch (error) {
-    ctx.app.emit('error', error, ctx)
-  }
+// connect to database
+mongoose.connect("mongodb://www.zayfen.com:27017/luckydraw", {
+  user: "zayfen",
+  pass: "@mongodbKi3358KIN",
+  dbName: "luckydraw",
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(_ => {
+  console.log("mongodb connected!")
+}).catch(err => {
+  console.error('mongodb Connection Error: ', err)
+  app.emit('db-error', err)
+  throw new Error(err)
 })
 
 const CONFIG = {
@@ -52,8 +62,28 @@ app.use(mount('/register', serve(StaticDir)))
 app.use(router.routes())
 app.use(router.allowedMethods())
 
-app.on('error', (err, ctx) => {
+// websocketRouter.all('/syncUser', (ctx: Router.RouterContext, next: Koa.Next) => {
+//   console.log('websocketRouter /syncUser')
+//   ctx.request.ctx.websocket.on('message', function (data) {
+//     console.log('message: ', data)
+//   })
+//   let session: string = ctx.query.session
+//   console.log("session； ", session)
+//   UserModel.find({session: session}).then((docs: UserDocument[]) => {
+//     console.log('docs: ', docs)
+//     ctx.request.ctx.websocket.send(JSON.stringify({ action: 'AllUsers', data: docs }))
+//   })
+// })
+// app.ws.use(websocketRouter.routes())
+app.ws.use(router.routes())
+
+app.on('error', (err: any, ctx: Koa.Context) => {
   console.error("Error: ", err)
+})
+
+app.on('db-error', (err: any) => {
+  console.error('Database Connection Error')
+  process.emit('SIGINT', 'SIGINT')
 })
 
 const PORT = process.env.PORT || 8000
@@ -61,8 +91,9 @@ app.listen(PORT);
 
 
 // graceful shutdown here
-process.on('SIGINT', function (signal) {
+process.on('SIGINT', async function () {
   console.log('graceful shutdown...')
+  await mongoose.disconnect()
 })
 
 console.log("Server Running On Port " + PORT)

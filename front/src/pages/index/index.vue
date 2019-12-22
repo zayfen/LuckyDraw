@@ -45,6 +45,8 @@
 import LuckyImageGrid from '@/components/lucky-image-grid/lucky-image-grid'
 import LuckyRegisterQrcode from '@/components/lucky-register-qrcode/lucky-register-qrcode'
 
+import Api from '@/api'
+
 export default {
   components: {
     LuckyImageGrid,
@@ -52,34 +54,11 @@ export default {
   },
   data () {
     return {
-      participantList: [{
-          name: "张云峰",
-          src:
-            "https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/wcylb7hjawi32w8ip72l.jpg"
-        },
-        {
-          name: "def",
-          src:
-            "https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/mbzfmu8fbbtt9vtfsrrk.jpg"
-        },
-        {
-          name: "xxx",
-          src:
-            "https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/prifpr8dchbxcvdkt6w9.jpg"
-        },
-        {
-          name: "sss",
-          src:
-            "https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/idzscqkbuxccetwrzraj.jpg"
-        }],
-      forbiddenList: [
-        {
-          name: "zzz",
-          src:
-            "https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/ch1mmihskxrt3wia7v6j.jpg"
-        }],
+      participantList: [],
+      forbiddenList: [],
       running: false,
       randomIndex: -1,
+      session: ''
     }
   },
 
@@ -87,17 +66,45 @@ export default {
     QrCodeText () {
       let validInteger  = str => !(Number.parseInt(str).toString() === 'NaN')
 
-      let session = this.$route.query.session || Date.now()
       let interval = this.$route.query.interval || ''  // unit: minute
       let protocol = window.location.protocol // http:  https:
       let host = window.location.host // localhost:8081
 
-      let registerUrl = `${protocol}//${host}/register?session=${session}`
+      let registerUrl = `${protocol}//${host}/register?session=${this.session}`
       if (interval && validInteger(interval)) {
         registerUrl = `${registerUrl}&interval=${interval}`
       }
       return registerUrl
     }
+  },
+
+  created () {
+    this.session = this.$route.query.session || Date.now()
+  },
+
+  mounted () {
+    Api.syncUser(this.session,
+      (_) => {
+        console.log('onConnection')
+        debugger
+      },
+      (onMessageEvent) => {
+        let data = JSON.parse(onMessageEvent.data)
+        console.log('data: ', data)
+        if (data.action === 'AllUsers') {
+          debugger
+          this.participantList = data.data.map(item => { 
+            return { session: item.session, name: item.user, src: item.avatar }
+          })
+        }
+        if (data.action === 'NewUser') {
+          this.participantList.splice(0, 0, {session: data.data.session, name: data.data.user, src: data.data.avatar })
+        }
+      },
+      (onCloseEvent) => {
+        console.log('onClosed')
+      }
+    )
   },
 
   methods: {
