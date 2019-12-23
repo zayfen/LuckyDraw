@@ -26,9 +26,9 @@ class Index implements BaseRouter {
       session: body.session
     })
     try {
-      let response: UserDocument = await user.save()
-      WebSocketManager.getInstance().dispatchSessionMessage(body.session, JSON.stringify({ action: 'NewUser', data: body }))
-      ctx.body = { code: 0, message: 'success', data: response }
+      let userDoc: UserDocument = await user.save()
+      WebSocketManager.getInstance().dispatchSessionMessage(body.session, JSON.stringify({ action: 'NewUser', data: { user: userDoc.user, avatar: userDoc.avatar, session: userDoc.session } }))
+      ctx.body = { code: 0, message: 'success', data: userDoc }
     } catch (error) {
       console.log('/api/register error: ', error)
       let mongoError = error as MongoError

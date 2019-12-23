@@ -57,6 +57,7 @@ export class WebSocketManager {
     if (this.getWebSockets(session).length === 0) {
       this.cache[session] = { session: session, websockets: [] }
     }
+    console.log('cache[', session, '] websockets ', this.cache[session].websockets.length)
     this.cache[session].websockets.push(websocket)
   }
 
@@ -101,7 +102,9 @@ export class WebSocketManager {
     if (websockets.length === 0) {
       return
     }
+    console.log('dispatchSessionMessage: ')
     websockets.forEach((ws: WebSocket) => {
+      console.log('alive: ', this.isWebSocketAlive(ws))
       if (this.isWebSocketAlive(ws)) {
         this.sendMessage(ws, message)
       }
