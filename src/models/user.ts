@@ -7,9 +7,11 @@ export interface UserDocument extends Document {
 }
 
 const UserSchema: Schema= new Schema({
-  user: { type: Schema.Types.String, required: true, unique: true },
+  user: { type: Schema.Types.String, required: true },
   avatar: { type: Schema.Types.String, required: true },
   session: { type: Schema.Types.String, required: true }
 })
+
+UserSchema.index({ "user": 1, "session": 1 }, { unique: true })
 
 export const UserModel: Model<UserDocument> = model('Uesr', UserSchema)

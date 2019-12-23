@@ -8,9 +8,9 @@
           <van-button plain type="primary" class="upload-face-button">上传人脸</van-button>
         </van-uploader>       
       </van-col>
-      <van-col :span="8">
+      <!-- <van-col :span="8">
         <van-button plain type="default" style="width: 4.4rem">随机人脸</van-button>
-      </van-col>
+      </van-col> -->
     </van-row>
 
       <van-image :src="avatar" width="8rem" height="8rem" style="margin-top: 1rem;overflow: hidden;" round fit="cover">
@@ -24,6 +24,7 @@
         <van-button type="primary" size="large" @click="register">参与抽奖</van-button>
       </van-col>
     </van-row>
+    <van-loading size="24px" v-show="loading" class="toast-loading">请求中</van-loading>
   </div>
 </template>
 
@@ -44,7 +45,8 @@ export default {
       userName: '',
       avatar: '',
       session: '',
-      intervalMinutes: DefaultIntervalMinutes
+      intervalMinutes: DefaultIntervalMinutes,
+      loading: false
     }
   },
 
@@ -91,12 +93,20 @@ export default {
     },
 
     register () {
-      // if (!this.validateAndSaveSession()) {
-      //   this.toast('您已参加此次抽奖活动', 'danger')
-      //   return
-      // }
+      if (!this.userName || !this.avatar || !this.session) {
+        let emptyFields = []
+        !this.userName.trim() && emptyFields.push('姓名')
+        !this.avatar.trim() && emptyFields.push('图像')
+        return this.toast(emptyFields.join('、') + '必填', 'danger')
+      }
+      if (this.loading) {
+        return this.toast('已在请求中', 'danger')
+      }
 
-      Api.register(this.userName, this.avatar, this.session).then(res => {
+      this.loading = true
+      Api.register(this.userName.trim(), this.avatar.trim(), this.session.trim()).then(res => {
+        this.loading = false
+
         if (res.code === 0) {
           this.toast('参加成功')
         } else if (res.code === 11000) { // duplicate user name
@@ -105,6 +115,9 @@ export default {
           // this.clearSession()
           this.toast(res.message || '参加失败，请稍后重试', 'warning')
         }
+      }).catch(err => {
+        this.toast(err || '网络或者服务器异常', 'danger')
+        this.loading = false
       })
     },
 
@@ -159,6 +172,17 @@ export default {
       border: 1px solid @mainColor;
       box-shadow: 0 0 1em rgba(@mainColor, .8);
     }
+  }
+
+  .toast-loading {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    padding: 10px;
+    background: rgba(0,0,0,.5);
+    transform: translate(-50%, -50%);
+    border: 1px solid @mainColor;
   }
 }
 </style>

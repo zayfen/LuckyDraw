@@ -27,10 +27,7 @@ class Index implements BaseRouter {
     })
     try {
       let response: UserDocument = await user.save()
-      let websocket = WebSocketManager.getInstance().getWebSocket(body.session)
-      if (websocket) {
-        websocket.send(JSON.stringify({ action: 'NewUser', data: body }))
-      }
+      WebSocketManager.getInstance().dispatchSessionMessage(body.session, JSON.stringify({ action: 'NewUser', data: body }))
       ctx.body = { code: 0, message: 'success', data: response }
     } catch (error) {
       console.log('/api/register error: ', error)
@@ -39,24 +36,19 @@ class Index implements BaseRouter {
     }
   }
 
-
   @GET('/syncUser')
-  public syncUser(ctx: Koa.Context) {
+  public onWebSocketConnection(ctx: Koa.Context) {
     console.log('websocketRouter /syncUser')
     ctx.websocket.on('message', function (data) {
       console.log('message: ', data)
     })
     let session: string = ctx.query.session
-    if (!WebSocketManager.getInstance().saveWebSocket(session, ctx.websocket)) {
-      // websocket this session bound already existed.
-      console.log('websocket this session bound already existed')
-      return ctx.websocket.close(100, 'websocket this session bound already existed')
-    }
+    WebSocketManager.getInstance().saveWebSocket(session, ctx.websocket)
 
     console.log("session: ", session, 'websocket url: ', ctx.websocket)
     UserModel.find({ session: session }).then((docs: UserDocument[]) => {
       console.log('docs: ', docs)
-      WebSocketManager.getInstance().getWebSocket(session).send(JSON.stringify({ action: 'AllUsers', data: docs }))
+      WebSocketManager.getInstance().dispatchSessionMessage(session, JSON.stringify({ action: 'AllUsers', data: docs }))
     })
   }
 }
