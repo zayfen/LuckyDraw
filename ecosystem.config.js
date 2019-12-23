@@ -10,7 +10,7 @@ const Config = {
     "script": ScriptPath,
     "args": "src/server.ts",
     "cwd": "./",
-    "instances" : "2",
+    "instances" : "1",
     "exec_mode": "cluster",
     "watch": ["src"],
     "error_file": "./logs/luckydraw-error.log",
@@ -19,11 +19,11 @@ const Config = {
     "out_file": "./logs/luckydraw-out.log",
     "env": {
       "NODE_ENV": "development",
-      "PORT": 3000
+      "PORT": 3030
     },
     "env_production": {
       "NODE_ENV": "production",
-      "PORT": 3000
+      "PORT": 3030
     }
   }]
 }
