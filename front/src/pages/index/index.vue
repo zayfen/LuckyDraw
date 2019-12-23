@@ -38,19 +38,27 @@
     <div class="lucky-register-container">
       <lucky-register-qrcode :text="QrCodeText"></lucky-register-qrcode>
     </div>
+
+    <div class="lucky-checkin">
+      <el-button class="lucky-checkin__button" size="mini" icon="el-icon-d-arrow-right"></el-button>
+      <lucky-white-list :session="session"></lucky-white-list>
+    </div>
+
   </div>  
 </template>
 
 <script>
 import LuckyImageGrid from '@/components/lucky-image-grid/lucky-image-grid'
 import LuckyRegisterQrcode from '@/components/lucky-register-qrcode/lucky-register-qrcode'
+import LuckyWhiteList from '@/components/lucky-white-list/lucky-white-list'
 
 import Api from '@/api'
 
 export default {
   components: {
     LuckyImageGrid,
-    LuckyRegisterQrcode
+    LuckyRegisterQrcode,
+    LuckyWhiteList
   },
   data () {
     return {
@@ -83,31 +91,43 @@ export default {
   },
 
   mounted () {
-    Api.syncUser(this.session,
-      (_) => {
-        console.log('onConnection')
-        debugger
-      },
-      (onMessageEvent) => {
-        let data = JSON.parse(onMessageEvent.data)
-        console.log('data: ', data)
-        if (data.action === 'AllUsers') {
-          debugger
-          this.participantList = data.data.map(item => { 
-            return { session: item.session, name: item.user, src: item.avatar }
-          })
-        }
-        if (data.action === 'NewUser') {
-          this.participantList.splice(0, 0, {session: data.data.session, name: data.data.user, src: data.data.avatar })
-        }
-      },
-      (onCloseEvent) => {
-        console.log('onClosed')
+    Api.syncUser(this.session, this.onWebSocketOpen.bind(this), this.onWebSocketMessage.bind(this), this.onWebSocketClose.bind(this))
+
+    // beforeClose
+    window.addEventListener('beforeunload', function (evt) {
+      evt = evt || window.event
+      if (evt) {
+        evt.returnValue = '确定离开抽奖页面吗？'
       }
-    )
+      return '确定离开抽奖页面吗？'
+    })
   },
 
   methods: {
+    onWebSocketOpen () {
+      // eslint-disable-next-line no-console
+      console.log('onWebSocketOpen')
+    },
+
+    onWebSocketMessage (onMessageEvent) {
+      let data = JSON.parse(onMessageEvent.data)
+      // eslint-disable-next-line no-console
+      console.log('onWebSocketMessage Data: ', data)
+      if (data.action === 'AllUsers') {
+        this.participantList = data.data.map(item => { 
+          return { session: item.session, name: item.user, src: item.avatar }
+        })
+      }
+      if (data.action === 'NewUser') {
+        this.participantList.splice(0, 0, {session: data.data.session, name: data.data.user, src: data.data.avatar })
+      }
+    },
+
+    onWebSocketClose () {
+      // eslint-disable-next-line no-console
+      console.log('onWebSocketClose')
+    },
+
     onButtonClick () {
       if (this.running) {
         clearInterval(this.intervalHolder)
@@ -131,6 +151,7 @@ export default {
           return 
         }
         this.randomIndex = this.generateRandomIndex()
+        // eslint-disable-next-line no-console
         console.log("randomIndex: ", this.randomIndex)
         this.startDraw()
       })
@@ -291,6 +312,25 @@ export default {
 
   &:hover {
     transform: scale(8);
+  }
+}
+
+.lucky-checkin {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 50px;
+  width: 20px;
+  transform: rotate(90deg);
+
+  &__button {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+
+    transition-property: transform;
+    transition-duration: all 1s;
   }
 }
 </style>

@@ -47,6 +47,7 @@ export default {
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
+  transition: all .5s;
 
   .grid-item {
     position: relative;
