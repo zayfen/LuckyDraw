@@ -40,9 +40,13 @@
     </div>
 
     <div class="lucky-checkin">
-      <el-button class="lucky-checkin__button" size="mini" icon="el-icon-d-arrow-right"></el-button>
-      <lucky-white-list :session="session"></lucky-white-list>
+      <div class="lucky-checkin__indicator">
+        <el-button class="lucky-checkin__indicator-button" size="small" icon="el-icon-location" @click="toggleWhiteList">签到</el-button>
+      </div>
+      <lucky-white-list :session="session"  :style="{transform: whiteListVisible ? 'translateY(50px)' : 'translateY(-100%)'}"></lucky-white-list>
     </div>
+    
+
 
   </div>  
 </template>
@@ -66,7 +70,8 @@ export default {
       forbiddenList: [],
       running: false,
       randomIndex: -1,
-      session: ''
+      session: '',
+      whiteListVisible: false
     }
   },
 
@@ -161,6 +166,12 @@ export default {
       let length = Math.max(1, this.participantList.length)
       let number = Math.round(Math.random() * Math.pow(10, ('' + length).length))
       return number % length
+    },
+
+    toggleWhiteList () {
+      // eslint-disable-next-line no-console
+      console.log('toggle white list')
+      this.whiteListVisible = !this.whiteListVisible
     }
   }
 }
@@ -317,20 +328,22 @@ export default {
 
 .lucky-checkin {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
   top: 0;
   height: 50px;
-  width: 20px;
-  transform: rotate(90deg);
+  width: 100%;
 
-  &__button {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
+  &__indicator {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+  }
 
-    transition-property: transform;
-    transition-duration: all 1s;
+  .lucky-white-list {
+    height: 860px;
   }
 }
+
 </style>

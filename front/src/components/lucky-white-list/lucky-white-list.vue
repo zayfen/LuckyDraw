@@ -5,10 +5,10 @@
         class="lucky-white-list__table"
         :data="tableData"
         style="width: 100%">
-        <el-table-column prp="name" label="姓名">
+        <el-table-column prop="name" label="姓名">
           <template slot-scope="scope">
             <el-input v-if="scope.row.editable" autofucus="true" v-model="scope.row.name" placeholder="请输入姓名" @blur="scope.row.editable = false" />
-            <span v-else>{{ scope.row.name }}</span>            
+            <span v-else class="user-name" @dblclick="scope.row.editable = true">{{ scope.row.name }}</span>            
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态">
@@ -20,8 +20,8 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" @click="edit(scope.$index, scope.row)">{{ scope.row.editable ? '确定' : '修改' }}</el-button>
-            <el-button @click="deleteRow(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" type="primary" @click="edit(scope.$index, scope.row)">{{ scope.row.editable ? '确定' : '修改' }}</el-button>
+            <el-button size="mini" @click="deleteRow(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -36,7 +36,7 @@ export default {
   name: 'LuckyWhiteList',
   props: {
     session: {
-      type: String | Number,
+      type: String,
       required: true
     }
   },
@@ -70,12 +70,41 @@ export default {
 
 <style lang="less" scoped>
   .lucky-white-list {
-    transition: transform 1s ease-in;
-    transform: translateY(-103%);
+    transition: transform .8s ease-in;
+    transition-delay: 0;
+    transform: translateY(-100%);
     width: 80%;
     height: 90%;
     margin: 0 auto;
-    overflow: hidden;
+    overflow: auto;
     text-align: center;
+    will-change: transform;
   }
+</style>
+
+
+<style lang="less">
+
+  .lucky-white-list {
+    .el-input__inner {
+      height: 30px;
+      line-height: 30px;
+    }
+
+    .el-table td {
+      padding: 5px 0;
+    }
+
+    .el-table th.is-leaf {
+      padding: 5px 0;
+    }
+
+    .user-name {
+      display: inline-block;
+      width: 100%;
+      height: 30px;
+      line-height: 30px;
+    }
+  }
+ 
 </style>
