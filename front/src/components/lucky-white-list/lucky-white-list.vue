@@ -47,6 +47,12 @@ export default {
     }
   },
 
+  watch: {
+    'tableData': function (newVal, oldVal) {
+      this.$emit('changed', this.tableData)
+    }
+  },
+
   methods: {
     addWhiteItem () {
       this.tableData.push({

@@ -43,7 +43,11 @@
       <div class="lucky-checkin__indicator">
         <el-button class="lucky-checkin__indicator-button" size="small" icon="el-icon-location" @click="toggleWhiteList">签到</el-button>
       </div>
-      <lucky-white-list :session="session"  :style="{transform: whiteListVisible ? 'translateY(50px)' : 'translateY(-100%)'}"></lucky-white-list>
+      <lucky-white-list 
+        :session="session"  
+        :style="{transform: whiteListVisible ? 'translateY(50px)' : 'translateY(-100%)'}"
+        @changed="onWhiteListChanged">
+        </lucky-white-list>
     </div>
     
 
@@ -172,6 +176,10 @@ export default {
       // eslint-disable-next-line no-console
       console.log('toggle white list')
       this.whiteListVisible = !this.whiteListVisible
+    },
+
+    onWhiteListChanged (list) {
+      // 增加/删除 签到人员，需要结合
     }
   }
 }
