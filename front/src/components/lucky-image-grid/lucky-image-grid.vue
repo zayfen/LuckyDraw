@@ -67,7 +67,8 @@ export default {
       line-height: 0;
       max-width: 100px;
       height: auto;
-      background-size: contain;
+      background-size: cover;
+      background-repeat: no-repeat;
       clip-path: circle(50% at center center);
 
       &::before {
@@ -92,7 +93,6 @@ export default {
         opacity: 0;
         transition: opacity 0.5s;
         background: linear-gradient(to top, transparent, rgba(black, 0.5), transparent);
-
       }
     }
 

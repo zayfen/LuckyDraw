@@ -5,8 +5,8 @@
     </el-row>
     <el-row>
       <el-col :span="6" class="luckydraw-participant">
-        <h4 class="luckydraw-participant__title">抽奖参与者({{participantList.length}}人)</h4>
-        <lucky-image-grid :images="participantList" class="luckydraw-participant__wrapper"></lucky-image-grid>
+        <h4 class="luckydraw-participant__title">抽奖参与者({{validParticipantList.length}}人)</h4>
+        <lucky-image-grid :images="validParticipantList" class="luckydraw-participant__wrapper"></lucky-image-grid>
       </el-col>
       <el-col :span="12">
         <div class="luckydraw-main">
@@ -16,10 +16,10 @@
               class="luckydraw-main__button" 
               @click="onButtonClick">{{running ? '产生幸运儿...' : '开始抽奖'}}</el-button>
           <div class="luckydraw-main__image">
-            <h3 v-show="randomIndex > -1">{{ participantList[randomIndex] && participantList[randomIndex].name}}</h3>
+            <h3 v-show="randomIndex > -1">{{ validParticipantList[randomIndex] && validParticipantList[randomIndex].name}}</h3>
             <div class="luckydraw-main__image-viewport">
               <div class="img-bg" 
-                v-for="(img, index) in participantList" 
+                v-for="(img, index) in validParticipantList" 
                 :key="index" 
                 :style="{backgroundImage: 'url(' + img.src + ')', zIndex: index === randomIndex ? '1' : '0'}">
               </div>
@@ -44,6 +44,7 @@
         <el-button class="lucky-checkin__indicator-button" size="small" icon="el-icon-location" @click="toggleWhiteList">签到</el-button>
       </div>
       <lucky-white-list 
+        :list="participantNameList"
         :session="session"  
         :style="{transform: whiteListVisible ? 'translateY(50px)' : 'translateY(-100%)'}"
         @changed="onWhiteListChanged">
@@ -75,7 +76,8 @@ export default {
       running: false,
       randomIndex: -1,
       session: '',
-      whiteListVisible: false
+      whiteListVisible: false,
+      whiteList: []
     }
   },
 
@@ -92,11 +94,25 @@ export default {
         registerUrl = `${registerUrl}&interval=${interval}`
       }
       return registerUrl
+    },
+
+    validParticipantList () {
+      let list = []
+      this.participantList.forEach (item => {
+        if (this.whiteList.indexOf(item.name.trim()) > -1) {
+          list.push(item)
+        }
+      })
+      return list
+    },
+
+    participantNameList () {
+      return this.participantList.map(item => item.name)
     }
   },
 
   created () {
-    this.session = this.$route.query.session || Date.now()
+    this.session = this.$route.query.session || '' + Date.now()
   },
 
   mounted () {
@@ -124,7 +140,7 @@ export default {
       console.log('onWebSocketMessage Data: ', data)
       if (data.action === 'AllUsers') {
         this.participantList = data.data.map(item => { 
-          return { session: item.session, name: item.user, src: item.avatar }
+          return { session: item.session, name: item.user.trim(), src: item.avatar }
         })
       }
       if (data.action === 'NewUser') {
@@ -167,7 +183,7 @@ export default {
     },
 
     generateRandomIndex () {
-      let length = Math.max(1, this.participantList.length)
+      let length = Math.max(1, this.validParticipantList.length)
       let number = Math.round(Math.random() * Math.pow(10, ('' + length).length))
       return number % length
     },
@@ -180,6 +196,8 @@ export default {
 
     onWhiteListChanged (list) {
       // 增加/删除 签到人员，需要结合
+      this.whiteList.splice(0, this.whiteList.length)
+      list.map(val => val.name).forEach(name => this.whiteList.push(name))
     }
   }
 }

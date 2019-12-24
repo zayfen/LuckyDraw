@@ -7,15 +7,15 @@
         style="width: 100%">
         <el-table-column prop="name" label="姓名">
           <template slot-scope="scope">
-            <el-input v-if="scope.row.editable" autofucus="true" v-model="scope.row.name" placeholder="请输入姓名" @blur="scope.row.editable = false" />
+            <el-input v-if="scope.row.editable" autofucus="true" v-model="scope.row.name" placeholder="请输入姓名" />
             <span v-else class="user-name" @dblclick="scope.row.editable = true">{{ scope.row.name }}</span>            
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <i color="green" v-if="scope.row.status === 1" class="el-icon-circle-check"></i>
+            <i color="green" v-if="list.indexOf(scope.row.name.trim()) > -1" class="el-icon-circle-check"></i>
             <i v-else class="el-icon-circle-close"></i>
-            <span>{{ {0: '未签到', 1: '已签到'}[scope.row.status] }}</span>
+            <span>{{ list.indexOf(scope.row.name.trim()) > -1 ? '已签到' : '未签到' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作">
@@ -38,6 +38,12 @@ export default {
     session: {
       type: String,
       required: true
+    },
+    list: {
+      type: Array,
+      default: function () {
+        return []
+      }
     }
   },
 
@@ -49,25 +55,52 @@ export default {
 
   watch: {
     'tableData': function (newVal, oldVal) {
-      this.$emit('changed', this.tableData)
+      this.notifyWhiteListChange()
     }
+  },
+
+  created () {
+    this.loadWhiteListFromLocal()
   },
 
   methods: {
     addWhiteItem () {
       this.tableData.push({
         name: '',
-        status: 0,
         editable: true
       })
     },
 
-    edit (index, row) {
-      row.editable = !row.editable
+    notifyWhiteListChange () {
+      this.$emit('changed', this.tableData)
     },
 
-    deleteRow (index, row) {
+    edit (index, row) {
+      row.editable = !row.editable
+      if (!row.editable) {
+        this.notifyWhiteListChange()
+        this.saveLocal()
+      }
+    },
+
+    deleteRow (index) {
       this.tableData.splice(index, 1)
+      this.saveLocal()
+    },
+
+    saveLocal () {
+      let key = `lucky-white-list-${this.session}`
+      let whiteListNames = []
+      this.tableData.forEach(item => whiteListNames.push(item.name))
+      localStorage.setItem(key, JSON.stringify(whiteListNames))
+    },
+
+    loadWhiteListFromLocal () {
+      let key = `lucky-white-list-${this.session}`
+      let whiteListNames = JSON.parse(localStorage.getItem(key) || JSON.stringify([]))
+      whiteListNames.forEach(name => {
+        this.tableData.push({ name: name, editable: false })
+      })
     }
   }
 }
