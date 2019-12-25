@@ -23,7 +23,8 @@ class Index implements BaseRouter {
     let user = new UserModel({
       user: body.name,
       avatar: body.avatar,
-      session: body.session
+      session: body.session,
+      sid: [body.name, body.session].join('--')
     })
     try {
       let userDoc: UserDocument = await user.save()
