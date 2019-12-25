@@ -1,7 +1,7 @@
 <template>
   <div class="lucky-white-list">
     <el-card shadow="always">
-      <h5 style="padding: 0; margin: 0; color: #990008;">
+      <h5 style="padding: 0; margin: 0; color: #BD2B24;">
         签到表({{tableData.filter(item => list.indexOf(item.name.trim()) > -1).length}}/{{ tableData.filter(item => item.name.trim()).length }})
       </h5>
       <el-table 
@@ -30,7 +30,10 @@
         </el-table-column>
       </el-table>
 
-      <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addWhiteItem">添加</el-button>
+      <el-button style="margin: 10px auto;"
+        type="primary" 
+        icon="el-icon-circle-plus-outline" 
+        @click="addWhiteItem">添加</el-button>
     </el-card>
   </div>
 </template>
@@ -127,7 +130,7 @@ export default {
 
 
 <style lang="less">
-  @mainColor: #990008;
+  @mainColor: #BD2B24;
   .lucky-white-list {
     color: @mainColor;
 

@@ -53,8 +53,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@normalGridItemWidth: 100px;
-@normalGridItemHeight: 100px;
+@normalGridItemWidth: 60px;
+@normalGridItemHeight: 60px;
 
 .lucky-image-bed {
   position: relative;

@@ -1,20 +1,19 @@
 <template>
   <div class="luckydraw">
-    <el-row>
-      <h2 class="title">2019年瓶子科技年会抽奖</h2>
-    </el-row>
-    <el-row>
+    <h2 class="title"><span style="color: #fcea00;">2019</span>年瓶子科技年会抽奖</h2>
+
+    <el-row style="position: absolute; top: 170px; left: 0; right: 0; bottom: 0;">
       <el-col :span="6" class="luckydraw-participant">
         <h4 class="luckydraw-participant__title">
-          参与抽奖({{validParticipantList.length}}人)
+          可参与抽奖人数({{validParticipantList.length}})
         </h4>
         <lucky-image-grid class="luckydraw-participant__wrapper"
           :data="validParticipantList">
         </lucky-image-grid>
       </el-col>
 
-      <el-col :span="12">
-        <div class="luckydraw-main">
+      <el-col class="luckydraw-main"
+        :span="12">
           <el-button class="luckydraw-main__button luckydraw-main__start" 
             v-if="context.state === context.S_START"
             size="large"
@@ -50,56 +49,52 @@
 
           <el-input class="luckydraw-main__count-input" 
             v-model.number="context.numLuckyPeople" 
-            placeholder="抽奖个数" 
+            placeholder="中奖人数" 
             :max="validParticipantList.length" 
             :min="0"
             @input="onCountInputChange"/>
-
-          <div class="luckydraw-main__image">
-            <h3 v-show="context.randomIndex > -1">
-              {{ validParticipantList[context.randomIndex] && validParticipantList[context.randomIndex].name}}
-            </h3>
-            <div class="luckydraw-main__image-viewport">
+          
+          <div class="luckydraw-main__hrl"
+            v-if="context.state === context.S_START || context.state === context.S_DRAWING">
+            <div class="luckydraw-main__hrl-viewport">
               <div class="img-bg" 
                 v-for="(img, index) in validParticipantList" 
                 :key="index" 
                 :style="{backgroundImage: 'url(' + img.src + ')', zIndex: index === context.randomIndex ? '1' : '0'}">
               </div>
-              <div class="img-bg img-bg__cover"></div>
             </div>
+            <span v-show="context.randomIndex > -1">
+              {{ validParticipantList[context.randomIndex] && validParticipantList[context.randomIndex].name}}
+            </span>
           </div>
-
-          <lucky-image-grid class="luckydraw-main__luckypeople"
-            :images="context.luckyPeople"
-            align="left"
-            size="small"
-            :showname="true">
-          </lucky-image-grid>
-
-        </div>
+          <lucky-people-display class="luckydraw-main__lpd"
+            v-else
+            :data="context.luckyPeople">
+          </lucky-people-display>
       </el-col>
-      <el-col :span="6">
-        <div class="luckydraw-forbidden">
-          <h4 class="luckydraw-forbidden__title">中奖({{forbiddenParticipantList.length}}人)</h4>
-          <lucky-image-grid :data="forbiddenParticipantList" class="luckydraw-forbidden__wrapper"></lucky-image-grid>
-        </div>
+
+      <el-col class="luckydraw-forbidden"
+        :span="6">
+        <h4 class="luckydraw-forbidden__title">已中奖人数({{forbiddenParticipantList.length}})</h4>
+        <lucky-image-grid :data="forbiddenParticipantList" class="luckydraw-forbidden__wrapper"></lucky-image-grid>
       </el-col>
     </el-row>
-    <div class="lucky-register-container">
+
+    <div class="lucky-register-qrcode">
       <lucky-register-qrcode :text="QrCodeText"></lucky-register-qrcode>
     </div>
 
     <div class="lucky-checkin">
-      <div class="lucky-checkin__indicator">
-        <el-button class="lucky-checkin__indicator-button" size="small" icon="el-icon-location" @click="toggleWhiteList">签到</el-button>
-      </div>
-      <lucky-white-list 
+      <a class="lucky-checkin-button" href="javascript: void 0;" @click="toggleWhiteList"></a>
+      <lucky-white-list
         :list="participantNameList"
         :session="session"  
         :style="{transform: whiteListVisible ? 'translateY(35px)' : 'translateY(130%)'}"
         @changed="onWhiteListChanged">
-        </lucky-white-list>
+      </lucky-white-list>      
     </div>
+
+
   </div>  
 </template>
 
@@ -107,6 +102,7 @@
 import LuckyImageGrid from '@/components/lucky-image-grid/lucky-image-grid'
 import LuckyRegisterQrcode from '@/components/lucky-register-qrcode/lucky-register-qrcode'
 import LuckyWhiteList from '@/components/lucky-white-list/lucky-white-list'
+import LuckyPeopleDisplay from '@/components/lucky-people-display/lucky-people-display'
 
 import Api from '@/api'
 
@@ -114,20 +110,12 @@ export default {
   components: {
     LuckyImageGrid,
     LuckyRegisterQrcode,
-    LuckyWhiteList
+    LuckyWhiteList,
+    LuckyPeopleDisplay
   },
   data () {
     return {
-      participantList: [
-        {
-          name: '张云峰',
-          src: 'https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/mbzfmu8fbbtt9vtfsrrk.jpg'
-        },
-        {
-          name: '张三',
-          src: 'https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/ch1mmihskxrt3wia7v6j.jpg'
-        }
-      ], // 所有的参与者
+      participantList: [], // 所有的参与者
       session: '',
       whiteListVisible: false,
       whiteList: ['张云峰', '张三'], // only save name
@@ -368,67 +356,130 @@ export default {
   right: 0;
   bottom: 0;
 
-  // background: linear-gradient(#373b44, #4286f4);
-  background: linear-gradient(#ccc, @mainColor);
-  font-size: 30px;
+  background-image: radial-gradient(50% 109%, #F95F4C 42%, #9E1010 100%);
+  border: 1px solid #979797;
+
+  &::before {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    content: "";
+    background: url("~@/assets/bg-layer.png") no-repeat;
+    background-position: 50% 0;
+  }
 
   .title {
-    text-align: center;
-    color: @mainColor;
+    display: block;
+    height: 98px;
     margin-bottom: 0;
+    margin-block-start: 40px;
     padding: 0;
+    line-height: 98px;
+    font-size: 70px;
+    text-align: center;
+    color: #fff2a7;
+  }
+}
+
+.lucky-register-qrcode {
+  position: absolute;
+  left: 60px;
+  top: 30px;
+  width: 100px;
+  padding: 5px;
+  background: rgba(#fff, 1);
+  transition: all .5s;
+  transform: scale(1);
+  transform-origin: left top;
+  z-index: 100;
+
+  &:hover {
+    transform: scale(6);
   }
 }
 
 .luckydraw-participant {
-  position: relative;
-  height: 820px;
+  position: absolute;
+  left: 60px;
+  top: 0;
+  width: 462px;
+  height: 780px;
   overflow: hidden;
   box-sizing: border-box;
-  border-top: 5px solid rgba(@mainColor, .3);
-  border-right: 5px solid rgba(@mainColor, .3);
-  border-radius: 50px;
+  background-color: rgba(#000, .15);
+  border-radius: 10px;
 
   &__title {
     text-align: center;
-    color: @mainColor;
+    color: #fff2a7;
+    font-size: 30px;
+    font-weight: 400;
+    margin-block-start: 30px;
+    margin-block-end: 20px;
   }
   &__wrapper {
     overflow: auto;
-    height: 800px;
+    height: 670px;
   }
 }
 
 .luckydraw-main {
-  position: relative;
+  position: absolute;
+  left: 50%;
   height: 820px;
   overflow: hidden;
   text-align: center;
+  transform: translateX(-50%);
 
   &__button {
-    width: 330px;
-    margin-top: 30px;
-    font-size: 18px;
-    border-color: @mainColor;
-    &.el-button--danger {
-      background: rgba(@mainColor, .3);
-    }
-    &.el-button--primary {
-      background-color: @mainColor;
-    }
+    width: 270px;
+    height: 64px;
+    margin-top: 0;
+    font-size: 36px;
+    border: none;
+    font-weight: 500;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    line-height: 60px;
+  }
+
+  &__start {
+    background: url("~@/assets/draw-button.svg") no-repeat;
+    background-size: 100% 100%;
+    color: #BD2B24;
+  }
+
+  &__drawing {
+    background: url("~@/assets/draw-button.svg") no-repeat;
+    background-size: 100% 100%;
+    color: #BD2B24;
   }
 
   &__confirm {
-    width: 330px;
+    width: 270px;
     margin: 0 auto;
 
     &-yes {
-      width: 150px;
+      width: 125px;
+      font-size: 18px;
+      border-radius: 60px;
+      background-color: #BD2B24;
+      border: 1px solid #BD2B24;
+      color: #fff2a7;
+      font-weight: 500;
+
     }
 
     &-no {
-      width: 150px;
-      color: @mainColor;
+      width: 125px;
+      font-size: 18px;
+      border-radius: 60px;
+      border: 1px solid #BD2B24;
+      color: #BD2b24;
+      font-weight: 500;
     }
     
   }
@@ -436,8 +487,9 @@ export default {
   /deep/ &__count-input {
     border: none;
     display: block;
-    width: 330px;
+    width: 220px;
     margin: 0 auto;
+    margin-top: 10px;
     text-align: center;
 
     > .el-input__inner {
@@ -448,11 +500,11 @@ export default {
       height: 30px;
       background-color: rgba(#000, 0);
       border-radius: 0;
-      border-bottom: 1px solid @mainColor;
+      border-bottom: 2px solid #fff2a7;
       text-align: center;
-      font-size: 18px;
-      font-weight: 700;
-      color: @mainColor;
+      font-size: 20px;
+      font-weight: 500;
+      color: #fff2a7;
       outline: none;
 
       &::placeholder {
@@ -463,99 +515,89 @@ export default {
     }
   }
 
-  &__image {
+  &__hrl {
     position: absolute;
     left: 50%;
-    top: 200px;
-    width: 300px;
+    top: 178px;
+    width: 380px;
+    height: 460px;
     transform: translateX(-50%);
-    h3 {
-      height: 65px;
-      line-height: 50px;
-      margin: 0;
-      padding: 0;
-      color: @mainColor;
-      font-size: 50px;
-      border-bottom: 2px dashed @mainColor;
-      box-sizing: border-box;
-    }
+    text-align: center;
 
     &-viewport {
       position: absolute;
       left: 0;
-      top: 80px;
-      width: 300px;
-      height: 300px;
+      top: 0;
+      width: 380px;
+      height: 380px;
       overflow: hidden;
-      clip-path: circle(50%);
+      // border-radius: 50%;
+      background: url("~@/assets/avatar-bg.svg") no-repeat;
+      background-size: 100% 100%;
 
       .img-bg {
         position: absolute;
-        left: 0;
-        top: 0;
-        width: 300px;
-        height: 300px;
+        left: 15px;
+        top: 15px;
+        width: 350px;
+        height: 350px;
         background-size: 100% 100%;
-
-        &__cover {
-          position: absolute;
-          background: rgba(@mainColor, .8);
-
-          &::after {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            content: "等待抽奖...";
-            color: #fff;
-          }
-        }
+        clip-path: circle(50%);
+        border-radius: 50%;
       }
+    }
+
+    span {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      display: block;
+      height: 56px;
+      line-height: 56px;
+      color: #fef1ba;
+      font-size: 40px;
+      box-sizing: border-box;
+      text-align: center;
     }
   }
 
-  &__luckypeople {
+  &__lpd {
     position: absolute;
-    bottom: 0;
-    max-height: 230px;
-    overflow: auto;
+    left: 50%;
+    top: 178px;
+    width: 930px;
+    height: 460px;
+    transform: translateX(-50%);
+    text-align: left;
+    box-sizing: border-box;
+    padding: 0 50px;
   }
 }
 
 .luckydraw-forbidden {
-  position: relative;
-  height: 820px;
+  position: absolute;
+  right: 60px;
+  top: 0;
+  width: 462px;
+  height: 780px;
   overflow: hidden;
   box-sizing: border-box;
-  border-top: 5px solid rgba(@mainColor, .3);
-  border-left: 5px solid rgba(@mainColor, .3);
-  border-radius: 50px;
+  background-color: rgba(#000, .15);
+  border-radius: 10px;
 
   &__title {
     text-align: center;
-    color: @mainColor;
+    color: #fff2a7;
+    font-size: 30px;
+    font-weight: 400;
+    margin-block-start: 30px;
+    margin-block-end: 20px;
   }
   &__wrapper {
     overflow: auto;
-    height: 800px;
-  }
-}
-
-
-.lucky-register-container {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 80px;
-  padding: 5px;
-  background: rgba(#fff, .8);
-  transition: all .5s;
-  transform: scale(1);
-  transform-origin: left top;
-  z-index: 100;
-
-  &:hover {
-    transform: scale(8);
+    height: 670px;
   }
 }
 
@@ -566,19 +608,17 @@ export default {
   top: 0;
   height: 50px;
   width: 100%;
+  z-index: 100;
 
-  &__indicator {
+  .lucky-checkin-button {
     position: absolute;
-    left: 50%;
-    top: 0;
-    line-height: 20px;
-    transform: translateX(-50%);
-    z-index: 2;
-
-    .el-button {
-      border: @mainColor;
-      color: @mainColor;
-    }
+    top: 64px;
+    right: 0;
+    display: block;
+    width: 146px;
+    height: 50px;
+    background: url("~@/assets/checkin-button.svg") no-repeat;
+    background-size: 100% 100%;
   }
 
   .lucky-white-list {
