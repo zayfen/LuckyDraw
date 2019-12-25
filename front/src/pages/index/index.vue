@@ -81,7 +81,7 @@
     </el-row>
 
     <div class="lucky-register-qrcode">
-      <lucky-register-qrcode :text="QrCodeText"></lucky-register-qrcode>
+      <lucky-register-qrcode :text="qrCodeContent"></lucky-register-qrcode>
     </div>
 
     <div class="lucky-checkin">
@@ -103,6 +103,10 @@ import LuckyImageGrid from '@/components/lucky-image-grid/lucky-image-grid'
 import LuckyRegisterQrcode from '@/components/lucky-register-qrcode/lucky-register-qrcode'
 import LuckyWhiteList from '@/components/lucky-white-list/lucky-white-list'
 import LuckyPeopleDisplay from '@/components/lucky-people-display/lucky-people-display'
+
+import { integerRangeRandom } from '@/utils/math'
+
+const randomGenerator = integerRangeRandom()
 
 import Api from '@/api'
 
@@ -130,13 +134,11 @@ export default {
         luckyPeople: [],
         proposalLuckyPeopleIndexes: []
       },
-
-      computedUpdateTrigger: 0
     }
   },
 
   computed: {
-    QrCodeText () {
+    qrCodeContent () {
       let validInteger  = str => !(Number.parseInt(str).toString() === 'NaN')
 
       let interval = this.$route.query.interval || ''  // unit: minute
@@ -154,7 +156,7 @@ export default {
       return this.checkedParticipantList.filter(item => !item.forbidden)
     },
 
-    forbiddenParticipantList () {
+    forbiddenParticipantList () { // 被禁止的人（抽过奖的也会被禁止)
       return this.checkedParticipantList.filter(item => item.forbidden)
     },
 
@@ -268,14 +270,15 @@ export default {
           }
         })
       })
+
+      // 本地存储中奖人姓名
+      this.saveLuckyNamesLocal()
       this.toNextState()
     },
 
     startDrawing () {
       requestAnimationFrame((time) => {
-        console.log("requestAnimationFrame: ", time)
         let indexes = this.generateRandomIndexes(this.context.numLuckyPeople)
-        console.log('indexes: ', ...indexes)
         this.context.randomIndex = indexes[0] || 0
 
         // eslint-disable-next-line no-console
@@ -301,9 +304,7 @@ export default {
       this.context.proposalLuckyPeopleIndexes.splice(0, this.context.proposalLuckyPeopleIndexes.length)
 
       while (this.context.proposalLuckyPeopleIndexes.length < numsIndexes) {
-        length = cloneValidParticipantList.length
-        let number = Math.round(Math.random() * Math.pow(10, ('' + length).length))
-        let index = number % length
+        let index = randomGenerator(0, cloneValidParticipantList.length-1)
         this.context.proposalLuckyPeopleIndexes.push(cloneValidParticipantList[index].index)
         cloneValidParticipantList.splice(index, 1)
       }
