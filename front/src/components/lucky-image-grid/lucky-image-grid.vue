@@ -1,10 +1,14 @@
 <template>
   <div class="lucky-image-grid">
-    <div class="grid">
-      <div class="grid-item" v-for="(img, index) in images" :key="index">
-        <div class="grid-item__img" :style="{backgroundImage: 'url(' + img.src + ')'}"></div>
+    <div class="grid"
+      :class="[{ 'left': 'grid-left', 'center': 'grid-center', 'right': 'grid-right'}[align] || 'center']">
+      <div class="grid-item" 
+        v-for="(item, index) in data" 
+        :class="[{ 'small': 'grid-item__small', 'normal': 'grid-item__normal', 'large': 'grid-item__large'}[size] || 'normal', showname ? 'grid-item__showname' : '' ]" 
+        :key="index">
+        <div class="grid-item__img" :style="{backgroundImage: 'url(' + item.src + ')'}"></div>
         <div class="grid-item__container">
-          <h2>{{img.name}}</h2>
+          <h2>{{item.name}}</h2>
         </div>
       </div>
     </div>
@@ -15,11 +19,29 @@
 export default {
   name: "LuckyImageGrid",
   props: {
-    images: {
+    data: {
       type: Array,
       default: function () {
         return []
       }
+    },
+    align: {
+      type: String,
+      default: 'center',
+      validator (type) {
+        return ['left', 'center', 'right'].indexOf(type) > -1
+      }
+    },
+    size: {
+      type: String,
+      default: 'normal',
+      validator (size) {
+        return ['normal', 'small', 'large'].indexOf(size) > -1
+      }
+    },
+    showname: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -31,6 +53,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@normalGridItemWidth: 100px;
+@normalGridItemHeight: 100px;
 
 .lucky-image-bed {
   position: relative;
@@ -49,11 +73,39 @@ export default {
   align-items: flex-start;
   transition: all .5s;
 
+  &-left {
+    justify-content: left;
+  }
+  &-center {
+    justify-content: center;
+  }
+  &-right {
+    justify-content: right;
+  }
+
   .grid-item {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: @normalGridItemWidth;
+    height: @normalGridItemHeight;
     margin: 5px;
+
+    &__small {
+      width: calc(@normalGridItemWidth * 2 / 3);
+      height: calc(@normalGridItemHeight * 2 / 3);
+      
+      .grid-item__img {
+        max-width: calc(@normalGridItemWidth * 2 / 3);
+      }
+    }
+
+    &__large {
+      width: calc(@normalGridItemWidth * 1.5);
+      height: calc(@normalGridItemHeight * 1.5);
+
+      .grid-item__img {
+        max-width: calc(@normalGridItemWidth * 1.5);
+      }
+    }
 
     &__img {
       position: absolute;
@@ -118,7 +170,7 @@ export default {
       }
     }
 
-    &:hover {
+    &:hover, &__showname {
       .grid-item__container {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);

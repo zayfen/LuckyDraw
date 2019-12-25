@@ -5,33 +5,83 @@
     </el-row>
     <el-row>
       <el-col :span="6" class="luckydraw-participant">
-        <h4 class="luckydraw-participant__title">抽奖参与者({{validParticipantList.length}}人)</h4>
-        <lucky-image-grid :images="validParticipantList" class="luckydraw-participant__wrapper"></lucky-image-grid>
+        <h4 class="luckydraw-participant__title">
+          参与抽奖({{validParticipantList.length}}人)
+        </h4>
+        <lucky-image-grid class="luckydraw-participant__wrapper"
+          :data="validParticipantList">
+        </lucky-image-grid>
       </el-col>
+
       <el-col :span="12">
         <div class="luckydraw-main">
-          <el-button size="large" 
-              :round="true"
-              :type="running ? 'danger' : 'primary'" 
-              class="luckydraw-main__button" 
-              @click="onButtonClick">{{running ? '产生幸运儿...' : '开始抽奖'}}</el-button>
+          <el-button class="luckydraw-main__button luckydraw-main__start" 
+            v-if="context.state === context.S_START"
+            size="large"
+            :round="true"
+            type="primary" 
+            @click="onDrawButtonClick(context.S_START)">
+            开始抽奖
+          </el-button>
+          <el-button class="luckydraw-main__button luckydraw-main__drawing" 
+            v-if="context.state === context.S_DRAWING"
+            size="large"
+            :round="true"
+            type="primary" 
+            @click="onDrawButtonClick(context.S_DRAWING)">
+            停止
+          </el-button>
+          
+          <el-row class="luckydraw-main__confirm"
+            v-if="context.state === context.S_CONFIRM">
+            <el-col :span="12">
+              <el-button class="luckydraw-main__button luckydraw-main__confirm-yes"
+                :round="true"
+                type="primary"
+                @click="onConfirmYesButtonClick">抽奖有效</el-button>
+            </el-col>
+            <el-col :span="12">
+              <el-button class="luckydraw-main__button luckydraw-main__confirm-no"
+                type="weak"
+                :round="true"
+                @click="toStartState">抽奖无效</el-button>
+            </el-col>
+          </el-row>
+
+          <el-input class="luckydraw-main__count-input" 
+            v-model.number="context.numLuckyPeople" 
+            placeholder="抽奖个数" 
+            :max="validParticipantList.length" 
+            :min="0"
+            @input="onCountInputChange"/>
+
           <div class="luckydraw-main__image">
-            <h3 v-show="randomIndex > -1">{{ validParticipantList[randomIndex] && validParticipantList[randomIndex].name}}</h3>
+            <h3 v-show="context.randomIndex > -1">
+              {{ validParticipantList[context.randomIndex] && validParticipantList[context.randomIndex].name}}
+            </h3>
             <div class="luckydraw-main__image-viewport">
               <div class="img-bg" 
                 v-for="(img, index) in validParticipantList" 
                 :key="index" 
-                :style="{backgroundImage: 'url(' + img.src + ')', zIndex: index === randomIndex ? '1' : '0'}">
+                :style="{backgroundImage: 'url(' + img.src + ')', zIndex: index === context.randomIndex ? '1' : '0'}">
               </div>
               <div class="img-bg img-bg__cover"></div>
             </div>
           </div>
+
+          <lucky-image-grid class="luckydraw-main__luckypeople"
+            :images="context.luckyPeople"
+            align="left"
+            size="small"
+            :showname="true">
+          </lucky-image-grid>
+
         </div>
       </el-col>
       <el-col :span="6">
         <div class="luckydraw-forbidden">
-          <h4 class="luckydraw-forbidden__title">禁止参与({{forbiddenList.length}}人)</h4>
-          <lucky-image-grid :images="forbiddenList" class="luckydraw-forbidden__wrapper"></lucky-image-grid>
+          <h4 class="luckydraw-forbidden__title">中奖({{forbiddenParticipantList.length}}人)</h4>
+          <lucky-image-grid :data="forbiddenParticipantList" class="luckydraw-forbidden__wrapper"></lucky-image-grid>
         </div>
       </el-col>
     </el-row>
@@ -46,13 +96,10 @@
       <lucky-white-list 
         :list="participantNameList"
         :session="session"  
-        :style="{transform: whiteListVisible ? 'translateY(50px)' : 'translateY(-100%)'}"
+        :style="{transform: whiteListVisible ? 'translateY(35px)' : 'translateY(130%)'}"
         @changed="onWhiteListChanged">
         </lucky-white-list>
     </div>
-    
-
-
   </div>  
 </template>
 
@@ -71,13 +118,32 @@ export default {
   },
   data () {
     return {
-      participantList: [],
-      forbiddenList: [],
-      running: false,
-      randomIndex: -1,
+      participantList: [
+        {
+          name: '张云峰',
+          src: 'https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/mbzfmu8fbbtt9vtfsrrk.jpg'
+        },
+        {
+          name: '张三',
+          src: 'https://res.cloudinary.com/zayfen/image/upload/v1576564059/img/ch1mmihskxrt3wia7v6j.jpg'
+        }
+      ], // 所有的参与者
       session: '',
       whiteListVisible: false,
-      whiteList: []
+      whiteList: ['张云峰', '张三'], // only save name
+
+      context: {
+        S_START: 'start',
+        S_DRAWING: 'drawing',
+        S_CONFIRM: 'confirm',
+        numLuckyPeople: 1,
+        state: 'start', // 抽奖状态: start, drawing, confirm,  start => drawing => confirm => start
+        randomIndex: -1,
+        luckyPeople: [],
+        proposalLuckyPeopleIndexes: []
+      },
+
+      computedUpdateTrigger: 0
     }
   },
 
@@ -96,14 +162,18 @@ export default {
       return registerUrl
     },
 
-    validParticipantList () {
-      let list = []
-      this.participantList.forEach (item => {
-        if (this.whiteList.indexOf(item.name.trim()) > -1) {
-          list.push(item)
-        }
+    validParticipantList () { // 可以抽奖的人，签到并且还没有中奖
+      return this.checkedParticipantList.filter(item => !item.forbidden)
+    },
+
+    forbiddenParticipantList () {
+      return this.checkedParticipantList.filter(item => item.forbidden)
+    },
+
+    checkedParticipantList () { // 签到的人
+      return this.participantList.filter(item => {
+        return this.whiteList.indexOf(item.name.trim()) > -1
       })
-      return list
     },
 
     participantNameList () {
@@ -112,7 +182,7 @@ export default {
   },
 
   created () {
-    this.session = this.$route.query.session || '' + Date.now()
+    this.session = this.$route.query.session || '' + Date.now()    
   },
 
   mounted () {
@@ -139,12 +209,13 @@ export default {
       // eslint-disable-next-line no-console
       console.log('onWebSocketMessage Data: ', data)
       if (data.action === 'AllUsers') {
-        this.participantList = data.data.map(item => { 
-          return { session: item.session, name: item.user.trim(), src: item.avatar }
+        let forbiddenNames = this.loadLuckyNamesLocal()
+        this.participantList = data.data.map(item => {  
+          return { session: item.session, name: item.user.trim(), src: item.avatar, forbidden: forbiddenNames.indexOf(item.user.trim()) > -1 }
         })
       }
       if (data.action === 'NewUser') {
-        this.participantList.splice(0, 0, {session: data.data.session, name: data.data.user, src: data.data.avatar })
+        this.participantList.splice(0, 0, {session: data.data.session, name: data.data.user, src: data.data.avatar, forbidden: false })
       }
     },
 
@@ -152,40 +223,103 @@ export default {
       // eslint-disable-next-line no-console
       console.log('onWebSocketClose')
     },
-
-    onButtonClick () {
-      if (this.running) {
-        clearInterval(this.intervalHolder)
-        setTimeout(() => {
-          this.showResult()
-        }, 0)
-
-      } else {
-        this.startDraw()
+    
+    toNextState () {
+      let stateMachine = {
+        'start': this.toDrawingState.bind(this),
+        'drawing': this.toConfrimState.bind(this),
+        'confirm': this.toStartState.bind(this)
       }
-      this.running = !this.running
+      stateMachine[this.context.state]()
     },
 
-    showResult () {
-
+    // 抽奖初始状态
+    toStartState () {
+      this.context.state = this.context.S_START
+      this.context.numLuckyPeople =  1
+      this.context.randomIndex = -1
+      this.context.luckyPeople.splice(0, this.context.luckyPeople.length)
+      this.context.proposalLuckyPeopleIndexes.splice(0, this.context.proposalLuckyPeopleIndexes.length)
     },
 
-    startDraw () {
-      requestAnimationFrame((time) => {
-        if (!this.running) {
-          return 
-        }
-        this.randomIndex = this.generateRandomIndex()
-        // eslint-disable-next-line no-console
-        console.log("randomIndex: ", this.randomIndex)
-        this.startDraw()
+    // 抽奖中
+    toDrawingState () {
+      this.context.state = this.context.S_DRAWING
+      if (this.validParticipantList.length <= 0 || this.context.numLuckyPeople < 1) {
+        return
+      }
+      this.startDrawing()
+    },
+
+    // 确定抽奖结果
+    toConfrimState () {
+      this.context.state = this.context.S_CONFIRM
+      this.context.proposalLuckyPeopleIndexes.forEach(value => {
+        setTimeout(() => {
+          this.context.luckyPeople.push(this.validParticipantList[value])
+        }, 500)
       })
     },
 
-    generateRandomIndex () {
-      let length = Math.max(1, this.validParticipantList.length)
-      let number = Math.round(Math.random() * Math.pow(10, ('' + length).length))
-      return number % length
+    onDrawButtonClick () {
+      if (this.validParticipantList.length <= 0 || this.context.numLuckyPeople < 1) {
+        return
+      }
+      this.toNextState()
+    },
+
+    // 确定抽奖结果有效
+    onConfirmYesButtonClick () {
+      // 中奖人 从参与抽奖人中移除， 加入到已中奖的栏中
+      this.context.luckyPeople.forEach((people) => {
+        Array.from({length: this.participantList.length}).forEach((v, index) => {
+          let item = this.participantList[index]
+          if (item.name === people.name) {
+            item.forbidden = true
+            this.participantList.splice(index, 1, item)
+          }
+        })
+      })
+      this.toNextState()
+    },
+
+    startDrawing () {
+      requestAnimationFrame((time) => {
+        console.log("requestAnimationFrame: ", time)
+        let indexes = this.generateRandomIndexes(this.context.numLuckyPeople)
+        console.log('indexes: ', ...indexes)
+        this.context.randomIndex = indexes[0] || 0
+
+        // eslint-disable-next-line no-console
+        console.log("randomIndex: ", this.context.randomIndex)
+
+        if (this.context.state !== this.context.S_DRAWING) { // 确保调用 startDrawing，至少能只执行一次抽奖逻辑
+          this.context.randomIndex = this.context.proposalLuckyPeopleIndexes[0] || 0
+          return 
+        }
+        this.startDrawing()
+      })
+    },
+
+    generateRandomIndexes (numsIndexes) {
+      let length = this.validParticipantList.length
+      let cloneValidParticipantList = this._.cloneDeep(this.validParticipantList)
+      cloneValidParticipantList = cloneValidParticipantList.map((item, index) => { 
+        item.index = index
+        return item
+      })
+
+      numsIndexes = Math.min(numsIndexes, length)
+      this.context.proposalLuckyPeopleIndexes.splice(0, this.context.proposalLuckyPeopleIndexes.length)
+
+      while (this.context.proposalLuckyPeopleIndexes.length < numsIndexes) {
+        length = cloneValidParticipantList.length
+        let number = Math.round(Math.random() * Math.pow(10, ('' + length).length))
+        let index = number % length
+        this.context.proposalLuckyPeopleIndexes.push(cloneValidParticipantList[index].index)
+        cloneValidParticipantList.splice(index, 1)
+      }
+      return this.context.proposalLuckyPeopleIndexes
     },
 
     toggleWhiteList () {
@@ -198,6 +332,27 @@ export default {
       // 增加/删除 签到人员，需要结合
       this.whiteList.splice(0, this.whiteList.length)
       list.map(val => val.name).forEach(name => this.whiteList.push(name))
+    },
+
+    onCountInputChange (count) {
+      if (count > this.validParticipantList.length) {
+        this.context.numLuckyPeople = this.validParticipantList.length
+      }
+      if (count < this.validParticipantList.length) {
+        this.context.numLuckyPeople = Math.min(1, this.validParticipantList.length)
+      }
+    },
+
+    saveLuckyNamesLocal () {
+      let forbiddentNames = this.forbiddenParticipantList.map(item => item.name) || []
+      let key = this.session + '-lucky-names'
+      localStorage.setItem(key, JSON.stringify(forbiddentNames))
+    },
+
+    loadLuckyNamesLocal () {
+      let key = this.session + '-lucky-names'
+      let forbiddenNamesStr = localStorage.getItem(key) || JSON.stringify([])
+      return JSON.parse(forbiddenNamesStr)
     }
   }
 }
@@ -236,12 +391,11 @@ export default {
 
   &__title {
     text-align: center;
-    color: #ccc;
+    color: @mainColor;
   }
   &__wrapper {
     overflow: auto;
     height: 800px;
-
   }
 }
 
@@ -261,6 +415,51 @@ export default {
     }
     &.el-button--primary {
       background-color: @mainColor;
+    }
+  }
+
+  &__confirm {
+    width: 330px;
+    margin: 0 auto;
+
+    &-yes {
+      width: 150px;
+    }
+
+    &-no {
+      width: 150px;
+      color: @mainColor;
+    }
+    
+  }
+
+  /deep/ &__count-input {
+    border: none;
+    display: block;
+    width: 330px;
+    margin: 0 auto;
+    text-align: center;
+
+    > .el-input__inner {
+      border: none;
+      margin: 0;
+      padding: 0;
+      line-height: 30px;
+      height: 30px;
+      background-color: rgba(#000, 0);
+      border-radius: 0;
+      border-bottom: 1px solid @mainColor;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: @mainColor;
+      outline: none;
+
+      &::placeholder {
+        font-weight: 500;
+        font-size: 16px;
+        color: rgba(@mainColor, .5);
+      }
     }
   }
 
@@ -314,6 +513,13 @@ export default {
       }
     }
   }
+
+  &__luckypeople {
+    position: absolute;
+    bottom: 0;
+    max-height: 230px;
+    overflow: auto;
+  }
 }
 
 .luckydraw-forbidden {
@@ -327,7 +533,7 @@ export default {
 
   &__title {
     text-align: center;
-    color: #ccc;
+    color: @mainColor;
   }
   &__wrapper {
     overflow: auto;
@@ -346,6 +552,7 @@ export default {
   transition: all .5s;
   transform: scale(1);
   transform-origin: left top;
+  z-index: 100;
 
   &:hover {
     transform: scale(8);
@@ -364,7 +571,14 @@ export default {
     position: absolute;
     left: 50%;
     top: 0;
+    line-height: 20px;
     transform: translateX(-50%);
+    z-index: 2;
+
+    .el-button {
+      border: @mainColor;
+      color: @mainColor;
+    }
   }
 
   .lucky-white-list {

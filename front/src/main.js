@@ -6,11 +6,14 @@ import Vant from 'vant'
 import 'vant/lib/index.css';
 
 import router from './router/index'
+import _ from 'lodash'
 
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)
 Vue.use(Vant)
+
+Vue.prototype._ = _ // load lodash
 
 new Vue({
   router,

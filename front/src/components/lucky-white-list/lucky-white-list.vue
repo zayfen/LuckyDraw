@@ -1,27 +1,31 @@
 <template>
   <div class="lucky-white-list">
     <el-card shadow="always">
+      <h5 style="padding: 0; margin: 0; color: #990008;">
+        签到表({{tableData.filter(item => list.indexOf(item.name.trim()) > -1).length}}/{{ tableData.filter(item => item.name.trim()).length }})
+      </h5>
       <el-table 
         class="lucky-white-list__table"
         :data="tableData"
+        empty-text="签到表为空"
         style="width: 100%">
-        <el-table-column prop="name" label="姓名">
+        <el-table-column prop="name" label="姓名" align="center">
           <template slot-scope="scope">
             <el-input v-if="scope.row.editable" autofucus="true" v-model="scope.row.name" placeholder="请输入姓名" />
             <span v-else class="user-name" @dblclick="scope.row.editable = true">{{ scope.row.name }}</span>            
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态">
+        <el-table-column prop="status" label="状态" align="center">
           <template slot-scope="scope">
             <i color="green" v-if="list.indexOf(scope.row.name.trim()) > -1" class="el-icon-circle-check"></i>
             <i v-else class="el-icon-circle-close"></i>
             <span>{{ list.indexOf(scope.row.name.trim()) > -1 ? '已签到' : '未签到' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="edit(scope.$index, scope.row)">{{ scope.row.editable ? '确定' : '修改' }}</el-button>
-            <el-button size="mini" @click="deleteRow(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" type="weak" @click="deleteRow(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -109,7 +113,7 @@ export default {
 
 <style lang="less" scoped>
   .lucky-white-list {
-    transition: transform .8s ease-in;
+    transition: transform .5s ease-in;
     transition-delay: 0;
     transform: translateY(-100%);
     width: 80%;
@@ -123,11 +127,32 @@ export default {
 
 
 <style lang="less">
-
+  @mainColor: #990008;
   .lucky-white-list {
+    color: @mainColor;
+
+    .el-button--primary {
+      background-color: @mainColor;
+      border-color: @mainColor;
+    }
+
+    .el-button--weak {
+      &:hover {
+        color: @mainColor;
+        background-color: #fff;
+        border-color: @mainColor;
+      }
+    }
+
+    .el-table .cell {
+      color: @mainColor;
+    }
+
     .el-input__inner {
       height: 30px;
       line-height: 30px;
+      border-color: @mainColor;
+      color: @mainColor;
     }
 
     .el-table td {
