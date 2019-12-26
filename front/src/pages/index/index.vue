@@ -20,7 +20,6 @@
             :round="true"
             type="primary" 
             @click="onDrawButtonClick(context.S_START)">
-            开始抽奖
           </el-button>
           <el-button class="luckydraw-main__button luckydraw-main__drawing" 
             v-if="context.state === context.S_DRAWING"
@@ -28,7 +27,6 @@
             :round="true"
             type="primary" 
             @click="onDrawButtonClick(context.S_DRAWING)">
-            停止
           </el-button>
           
           <el-row class="luckydraw-main__confirm"
@@ -277,12 +275,9 @@ export default {
     },
 
     startDrawing () {
-      requestAnimationFrame((time) => {
+      requestAnimationFrame(() => {
         let indexes = this.generateRandomIndexes(this.context.numLuckyPeople)
         this.context.randomIndex = indexes[0] || 0
-
-        // eslint-disable-next-line no-console
-        console.log("randomIndex: ", this.context.randomIndex)
 
         if (this.context.state !== this.context.S_DRAWING) { // 确保调用 startDrawing，至少能只执行一次抽奖逻辑
           this.context.randomIndex = this.context.proposalLuckyPeopleIndexes[0] || 0
@@ -444,17 +439,16 @@ export default {
     padding: 0;
     margin: 0;
     border-radius: 0;
-    line-height: 60px;
   }
 
   &__start {
-    background: url("~@/assets/draw-button.svg") no-repeat;
+    background: url("~@/assets/start-draw-button.svg") no-repeat;
     background-size: 100% 100%;
     color: #BD2B24;
   }
 
   &__drawing {
-    background: url("~@/assets/draw-button.svg") no-repeat;
+    background: url("~@/assets/stop-draw-button.svg") no-repeat;
     background-size: 100% 100%;
     color: #BD2B24;
   }
