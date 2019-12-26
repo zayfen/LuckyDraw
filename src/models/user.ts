@@ -13,6 +13,6 @@ const UserSchema: Schema= new Schema({
   sid: { type: Schema.Types.String, required: true, unique: true }
 })
 
-// UserSchema.index({ "user": 1, "session": 1 }, { unique: true })
+UserSchema.index({ sid: 1 }, { unique: true })
 
-export const UserModel: Model<UserDocument> = model('Uesr', UserSchema)
+export const UserModel: Model<UserDocument> = model('User', UserSchema)
