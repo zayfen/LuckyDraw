@@ -65,7 +65,8 @@ export default {
       height: 136px;
       clip-path: circle(50%);
       border-radius: 50%;
-      background-size: contain;
+      background-size: 100% auto;
+      background-repeat: no-repeat;
     }
 
     &__name {
