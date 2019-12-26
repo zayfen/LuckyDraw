@@ -193,9 +193,14 @@ export default {
     },
 
     onWebSocketMessage (onMessageEvent) {
+      if (onMessageEvent.data.length <= 1) { // this is heart beat
+        // eslint-disable-next-line no-console
+        console.log('keep-alive heartbeat ', onMessageEvent.data)
+        return
+      }
       let data = JSON.parse(onMessageEvent.data)
       // eslint-disable-next-line no-console
-      console.log('onWebSocketMessage Data: ', data)
+      console.log('onWebSocketMessage Data: ', onMessageEvent.data)
       if (data.action === 'AllUsers') {
         let forbiddenNames = this.loadLuckyNamesLocal()
         this.participantList = data.data.map(item => {  
