@@ -9,6 +9,9 @@ import { UserModel, UserDocument } from '../../models/user'
 import { WebSocketManager } from '../../manager/websocket_manager'
 import { MongoError } from 'mongodb'
 
+function str2hex (str: string): string {
+  return Buffer.from(str, 'utf-8').toString('hex')
+}
 class Index implements BaseRouter {
   prefix: string = '/'
   name: string = '张云峰'
@@ -24,7 +27,7 @@ class Index implements BaseRouter {
       user: body.name,
       avatar: body.avatar,
       session: body.session,
-      sid: [body.name, body.session].join('--')
+      sid: str2hex([body.session, body.name].join('--'))
     })
     try {
       let userDoc: UserDocument = await user.save()
