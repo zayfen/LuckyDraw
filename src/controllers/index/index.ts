@@ -1,10 +1,10 @@
 /**
    This is index router
  */
+import 'koa-body'
 import * as Koa from 'koa'
 import { GET, POST, MIDDLEWARE } from '../../core/decorators'
 import { BaseRouter, MiddleWare } from '../../core/types'
-import 'koa-body'
 import { UserModel, UserDocument } from '../../models/user'
 import { WebSocketManager } from '../../manager/websocket_manager'
 import { MongoError } from 'mongodb'
@@ -12,6 +12,7 @@ import { MongoError } from 'mongodb'
 function str2hex (str: string): string {
   return Buffer.from(str, 'utf-8').toString('hex')
 }
+
 class Index implements BaseRouter {
   prefix: string = '/'
   name: string = '张云峰'

@@ -26,6 +26,10 @@ export class WebSocketManager {
   private maxSessions: number = 10
   private static instance: WebSocketManager = null
 
+  public allSessions (): string[] {
+    return Object.keys(this.cache)
+  }
+
   public getWebSockets (session: string): Array<WebSocket> {
     if (this.cache[session]) {
       return this.cache[session].websockets
@@ -78,7 +82,7 @@ export class WebSocketManager {
    * @param code 关闭会话的code
    * @param reason 关闭会话的原因
    */
-  public closeSeesion (session: string, code: number, reason: string): void {
+  public closeSession (session: string, code: number, reason: string): void {
     let websocketWrapper = this.cache[session]
     websocketWrapper.websockets.forEach((ws: WebSocket) => {
       if (this.isWebSocketAlive(ws)) {
@@ -132,6 +136,13 @@ export class WebSocketManager {
   public clearDeadWebSocket (): void {
     let sessions: Array<string> = Object.keys(this.cache)
     sessions.forEach(session => this.clearSessionDeadWebSocket(session))
+  }
+
+  public fireHeartBeat (): void {
+    console.log('fireHeardBeat...')
+    this.allSessions().forEach(session => {
+      this.dispatchSessionMessage(session, 'b')
+    })
   }
 
   public static getInstance (): WebSocketManager {
