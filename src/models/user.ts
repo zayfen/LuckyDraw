@@ -15,4 +15,4 @@ const UserSchema: Schema= new Schema({
 
 UserSchema.index({ sid: 1 }, { unique: true })
 
-export const UserModel: Model<UserDocument> = model('Uesr', UserSchema)
+export const UserModel: Model<UserDocument> = model('User', UserSchema)
