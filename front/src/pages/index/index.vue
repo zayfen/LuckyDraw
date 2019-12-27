@@ -125,7 +125,7 @@ export default {
       participantList: [], // 所有的参与者
       session: '',
       whiteListVisible: false,
-      whiteList: ['张云峰', '张三'], // only save name
+      whiteList: [], // only save name
 
       context: {
         S_START: 'start',
