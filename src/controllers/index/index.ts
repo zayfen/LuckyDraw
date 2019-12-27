@@ -45,6 +45,7 @@ class Index implements BaseRouter {
   @POST('/api/checkinList')
   public checkinList (ctx: Koa.Context) {
     let body: { session: string } = ctx.request.body
+    console.log('/api/checkinList body: ', body)
 
     CheckinListModel.findOne({ session: body.session }).then((value: CheckinListDocument) => {
       ctx.body = { code: 0, message: 'success', data: value.users }
@@ -57,6 +58,7 @@ class Index implements BaseRouter {
   @POST('/api/upsertCheckinList')
   public async upsertCheckinList (ctx: Koa.Context) {
     let body: { session: string, users: string[] } = ctx.request.body
+    console.log('/api/upsertCheckinList body: ', body)
     try {
       await CheckinListModel.updateOne({ session: body.session }, { session: body.session, users: body.users }, { upsert: true })
       ctx.body = { code: 0, message: 'success' }
