@@ -77,7 +77,7 @@ class Index implements BaseRouter {
     let session: string = ctx.query.session
     WebSocketManager.getInstance().saveWebSocket(session, ctx.websocket)
 
-    console.log("session: ", session, 'websocket url: ', ctx.websocket)
+    console.log("session: ", session, 'websocket url: ', ctx.websocket.url)
     UserModel.find({ session: session }).then((docs: UserDocument[]) => {
       console.log('docs: ', docs)
       WebSocketManager.getInstance().dispatchSessionMessage(session, JSON.stringify({ action: 'AllUsers', data: docs }))
