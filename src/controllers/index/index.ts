@@ -33,7 +33,8 @@ class Index implements BaseRouter {
     })
     try {
       let userDoc: UserDocument = await user.save()
-      WebSocketManager.getInstance().dispatchSessionMessage(body.session, JSON.stringify({ action: 'NewUser', data: { user: userDoc.user, avatar: userDoc.avatar, session: userDoc.session } }))
+      let message: string = JSON.stringify({ action: 'NewUser', data: { user: userDoc.user, avatar: userDoc.avatar, session: userDoc.session } })
+      WebSocketManager.getInstance().dispatchSessionMessage(body.session, message)
       ctx.body = { code: 0, message: 'success', data: userDoc }
     } catch (error) {
       console.log('/api/register error: ', error)

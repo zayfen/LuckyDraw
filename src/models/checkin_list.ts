@@ -6,7 +6,7 @@ export interface CheckinListDocument extends Document {
 }
 
 const CheckinListSchema: Schema= new Schema({
-  users: { type: Schema.Types.Array, required: true },
+  users: { type: [String], required: true },
   session: { type: Schema.Types.String, required: true, unique: true },
 })
 
