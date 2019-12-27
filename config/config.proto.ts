@@ -1,3 +1,8 @@
 export interface Config {
-  hexoRoot: string,
+  mongodb: {
+    uri: string,
+    db: string,
+    user: string,
+    password: string
+  }
 }

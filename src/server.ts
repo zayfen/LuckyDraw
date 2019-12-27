@@ -1,30 +1,29 @@
-import * as path from 'path'
 import * as Koa from 'koa'
-import * as Router from 'koa-router'
+import * as path from 'path'
 import * as cors from 'koa2-cors'
-import * as serve from 'koa-static'
 import * as mount from 'koa-mount'
+import * as serve from 'koa-static'
 import * as mongoose from 'mongoose'
+import * as Router from 'koa-router'
+import * as session from 'koa-session'
 const websockify = require('koa-websocket')
 
+import Config from '../config'
 import { boot } from './core/boot'
-import * as session from 'koa-session'
-
 import TimerTask from './utils/timer_task_utils'
 import { WebSocketManager } from './manager/websocket_manager'
 
 const app = websockify(new Koa())
 const router = new Router()
-const websocketRouter = new Router()
 const websocketHeartBeatTimerTask = new TimerTask()
 
 app.keys = ['abcK2?xZ', '12D@KiS::)d', 'kSJDfkjwe(23r}{']
 
 // connect to database
-mongoose.connect("mongodb://www.zayfen.com:27017/luckydraw", {
-  user: "zayfen",
-  pass: "@mongodbKi3358KIN",
-  dbName: "luckydraw",
+mongoose.connect(Config.mongodb.uri, {
+  user: Config.mongodb.user,
+  pass: Config.mongodb.password,
+  dbName: Config.mongodb.db,
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(_ => {

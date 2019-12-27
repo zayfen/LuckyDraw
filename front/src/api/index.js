@@ -30,7 +30,6 @@ class Api {
   static syncUser (session, onopenFn, onmessgaeFn, oncloseFn) {
     let host = window.location.host
     let url = 'ws://' + host + '/syncUser?session=' + session
-    console.log('url: ', url)
     let websocket = createWebsocket(url)
     if (websocket === null) {
       throw Error('Browser dont support websocket')
@@ -46,6 +45,25 @@ class Api {
     websocket.onclose = function (evt) {
       typeof oncloseFn === 'function' && oncloseFn(evt)
     }
+  }
+
+  /**
+   * 获取签到表
+   * @param {string} session 
+   */
+  static checkinList (session) {
+    let url = buildUrl('checkinList')
+    return Net.post(url, { session })
+  }
+
+  /**
+   * 更新或者新增一个白名单
+   * @param {string} session 
+   * @param {string[]} users 签到表姓名
+   */
+  static upsertCheckinList (session, users) {
+    let url = buildUrl('upsertCheckinList')
+    return Net.post(url, { session, users })
   }
 }
 

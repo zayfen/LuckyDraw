@@ -6,6 +6,7 @@ import * as Koa from 'koa'
 import { GET, POST, MIDDLEWARE } from '../../core/decorators'
 import { BaseRouter, MiddleWare } from '../../core/types'
 import { UserModel, UserDocument } from '../../models/user'
+import { CheckinListModel, CheckinListDocument } from '../../models/checkin_list'
 import { WebSocketManager } from '../../manager/websocket_manager'
 import { MongoError } from 'mongodb'
 
@@ -22,7 +23,7 @@ class Index implements BaseRouter {
   }
 
   @POST('/api/register')
-  public async register(ctx: Koa.Context) {
+  public async register (ctx: Koa.Context) {
     let body: { avatar: string, name: string, session: string } = ctx.request.body
     let user = new UserModel({
       user: body.name,
@@ -36,6 +37,30 @@ class Index implements BaseRouter {
       ctx.body = { code: 0, message: 'success', data: userDoc }
     } catch (error) {
       console.log('/api/register error: ', error)
+      let mongoError = error as MongoError
+      ctx.body = { code: mongoError.code, message: mongoError.errmsg }
+    }
+  }
+
+  @POST('/api/checkinList')
+  public checkinList (ctx: Koa.Context) {
+    let body: { session: string } = ctx.request.body
+
+    CheckinListModel.findOne({ session: body.session }).then((value: CheckinListDocument) => {
+      ctx.body = { code: 0, message: 'success', data: value.users }
+    }).catch( (err: any) => {
+      let mongoError = err as MongoError
+      ctx.body = { code: mongoError.code, message: mongoError.errmsg }
+    })
+  }
+
+  @POST('/api/upsertCheckinList')
+  public async upsertCheckinList (ctx: Koa.Context) {
+    let body: { session: string, users: string[] } = ctx.request.body
+    try {
+      await CheckinListModel.updateOne({ session: body.session }, { session: body.session, users: body.users }, { upsert: true })
+      ctx.body = { code: 0, message: 'success' }
+    } catch (error) {
       let mongoError = error as MongoError
       ctx.body = { code: mongoError.code, message: mongoError.errmsg }
     }

@@ -1,8 +1,10 @@
 <template>
   <div class="luckydraw">
+    <!-- title -->
     <h2 class="title"><span style="color: #fcea00;">2019</span>年瓶子科技年会抽奖</h2>
 
     <el-row style="position: absolute; top: 170px; left: 0; right: 0; bottom: 0;">
+      <!-- 签到成功展示区域 -->
       <el-col :span="6" class="luckydraw-participant">
         <h4 class="luckydraw-participant__title">
           可参与抽奖人数({{validParticipantList.length}})
@@ -12,6 +14,7 @@
         </lucky-image-grid>
       </el-col>
 
+      <!-- 抽奖 & 中奖结果 展示区域 -->
       <el-col class="luckydraw-main"
         :span="12">
           <el-button class="luckydraw-main__button luckydraw-main__start" 
@@ -71,6 +74,7 @@
           </lucky-people-display>
       </el-col>
 
+      <!-- 已中奖展示区域 -->
       <el-col class="luckydraw-forbidden"
         :span="6">
         <h4 class="luckydraw-forbidden__title">已中奖人数({{forbiddenParticipantList.length}})</h4>
@@ -78,10 +82,12 @@
       </el-col>
     </el-row>
 
+    <!-- 签到二维码 -->
     <div class="lucky-register-qrcode">
       <lucky-register-qrcode :text="qrCodeContent"></lucky-register-qrcode>
     </div>
 
+    <!-- 签到表 -->
     <div class="lucky-checkin">
       <a class="lucky-checkin-button" href="javascript: void 0;" @click="toggleWhiteList"></a>
       <lucky-white-list
@@ -91,7 +97,6 @@
         @changed="onWhiteListChanged">
       </lucky-white-list>      
     </div>
-
 
   </div>  
 </template>
@@ -207,7 +212,15 @@ export default {
           return { session: item.session, name: item.user.trim(), src: item.avatar, forbidden: forbiddenNames.indexOf(item.user.trim()) > -1 }
         })
       }
+
       if (data.action === 'NewUser') {
+        let inChecinList = this.whiteList.includes(data.data.user.trim())
+        if (inChecinList) {
+          this.$message({ message: data.data.user + ' 签到成功', type: 'success' })
+        } else {
+          this.$message({ message: data.data.user + '(外部人员) 扫码加入', type: 'warning' })
+        }
+
         this.participantList.splice(0, 0, {session: data.data.session, name: data.data.user, src: data.data.avatar, forbidden: false })
       }
     },

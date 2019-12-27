@@ -24,7 +24,8 @@
         <van-button type="primary" size="large" @click="register">参与抽奖</van-button>
       </van-col>
     </van-row>
-    <van-loading size="24px" v-show="loading" class="toast-loading">请求中</van-loading>
+    <van-loading size="24px" v-show="loading" class="toast-loading">请求中...</van-loading>
+    <van-loading size="24px" v-show="uploading" class="toast-loading">图片上传中...</van-loading>
   </div>
 </template>
 
@@ -46,7 +47,8 @@ export default {
       avatar: '',
       session: '',
       intervalMinutes: DefaultIntervalMinutes,
-      loading: false
+      loading: false,
+      uploading: false
     }
   },
 
@@ -123,10 +125,17 @@ export default {
 
     afterRead (file) {
       rotateAndCompressImg(file.file).then(contentAndFile => {
+        this.uploading = true
         upload('img', contentAndFile.file).then(res => {
+          this.uploading = false
           if (res.code === 0) {
             this.avatar = res.data.visit_url
+          } else {
+            this.toast(res.message || '上传人脸图片失败', 'danger')
           }
+        }).catch (err => {
+          this.uploading = false
+          this.toast(err || '上传人脸图片失败', 'danger')
         })
       })
     },

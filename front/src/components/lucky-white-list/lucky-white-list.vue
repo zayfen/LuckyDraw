@@ -2,7 +2,7 @@
   <div class="lucky-white-list">
     <el-card shadow="always">
       <h5 style="padding: 0; margin: 0; color: #BD2B24;">
-        签到表({{tableData.filter(item => list.indexOf(item.name.trim()) > -1).length}}/{{ tableData.filter(item => item.name.trim()).length }})
+        签到表({{tableData.filter(item => list.includes(item.name.trim())).length}}/{{ tableData.filter(item => item.name.trim()).length }})
       </h5>
       <el-table 
         class="lucky-white-list__table"
@@ -17,9 +17,9 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" align="center">
           <template slot-scope="scope">
-            <i color="green" v-if="list.indexOf(scope.row.name.trim()) > -1" class="el-icon-circle-check"></i>
+            <i color="green" v-if="list.includes(scope.row.name.trim())" class="el-icon-circle-check"></i>
             <i v-else class="el-icon-circle-close"></i>
-            <span>{{ list.indexOf(scope.row.name.trim()) > -1 ? '已签到' : '未签到' }}</span>
+            <span>{{ list.includes(scope.row.name.trim()) ? '已签到' : '未签到' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center">
@@ -39,6 +39,9 @@
 </template>
 
 <script>
+/* eslint-disable no-console */
+
+import Api from '@/api'
 export default {
   name: 'LuckyWhiteList',
   props: {
@@ -67,7 +70,7 @@ export default {
   },
 
   created () {
-    this.loadWhiteListFromLocal()
+    this.loadCheckinList()
   },
 
   methods: {
@@ -86,29 +89,43 @@ export default {
       row.editable = !row.editable
       if (!row.editable) {
         this.notifyWhiteListChange()
-        this.saveLocal()
+        this.saveCheckinList()
       }
     },
 
     deleteRow (index) {
       this.tableData.splice(index, 1)
-      this.saveLocal()
+      this.saveCheckinList()
     },
 
-    saveLocal () {
-      let key = `lucky-white-list-${this.session}`
+    saveCheckinList () {
       let whiteListNames = []
       this.tableData.forEach(item => whiteListNames.push(item.name))
-      localStorage.setItem(key, JSON.stringify(whiteListNames))
+      
+      Api.upsertCheckinList(this.session, whiteListNames).then(response => {
+        if (response.code === 0) {
+          this.$message({ message: '签到表更新成功', type: 'success' })
+        } else {
+          this.$message({ message: '签到表更新失败', type: 'error' })
+        }
+      })
     },
 
-    loadWhiteListFromLocal () {
-      let key = `lucky-white-list-${this.session}`
-      let whiteListNames = JSON.parse(localStorage.getItem(key) || JSON.stringify([]))
-      whiteListNames.forEach(name => {
-        this.tableData.push({ name: name, editable: false })
+    loadCheckinList () {
+      Api.checkinList(this.session).then(response => {
+        if (response.code === 0) {
+          let checkinList = response.data
+          checkinList.forEach(name => this.tableData.push({ name: name, editable: false }) )
+        } else {
+          console.error('Api.checkinList error: ', response.message)
+        }
+      }).catch(err => {
+        console.error('Api.checkinList error: ', err)
+        this.$message({ message: '签到表拉取失败', type: 'error' })
       })
     }
+
+
   }
 }
 </script>
