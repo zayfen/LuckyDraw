@@ -43,7 +43,7 @@ class Index implements BaseRouter {
   }
 
   @POST('/api/checkinList')
-  public checkinList (ctx: Koa.Context) {
+  public async checkinList (ctx: Koa.Context) {
     let body: { session: string } = ctx.request.body
     console.log('/api/checkinList body: ', body)
 
