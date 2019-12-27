@@ -46,13 +46,15 @@ class Index implements BaseRouter {
   public async checkinList (ctx: Koa.Context) {
     let body: { session: string } = ctx.request.body
     console.log('/api/checkinList body: ', body)
-
-    CheckinListModel.findOne({ session: body.session }).then((value: CheckinListDocument) => {
+    try {
+      let value = await CheckinListModel.findOne({ session: body.session })
+      console.log('CheckinListModel.findOne: ', value)
       ctx.body = { code: 0, message: 'success', data: value.users }
-    }).catch( (err: any) => {
+    } catch (err: any) {
+      console.log("CheckinListModel.findOne error: ", err)
       let mongoError = err as MongoError
       ctx.body = { code: mongoError.code, message: mongoError.errmsg }
-    })
+    }
   }
 
   @POST('/api/upsertCheckinList')
