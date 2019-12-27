@@ -7,6 +7,7 @@
       <el-table 
         class="lucky-white-list__table"
         :data="tableData"
+        :row-class-name="tableRowClassName"
         empty-text="签到表为空"
         style="width: 100%">
         <el-table-column prop="name" label="姓名" align="center">
@@ -74,6 +75,14 @@ export default {
   },
 
   methods: {
+    tableRowClassName ({ row }) {
+      if (this.list.includes(row.name.trim())) {
+        return 'checkin-status__yes'
+      } else {
+        return 'checkin-status__no'
+      }
+    },
+
     addWhiteItem () {
       this.tableData.push({
         name: '',
@@ -148,6 +157,7 @@ export default {
 
 <style lang="less">
   @mainColor: #BD2B24;
+  @negitiveColor: #42D4DB;
   .lucky-white-list {
     color: @mainColor;
 
@@ -188,6 +198,13 @@ export default {
       width: 100%;
       height: 30px;
       line-height: 30px;
+    }
+
+    .checkin-status__no {
+    }
+
+    .checkin-status__yes {
+      background-color: rgba(66,212,219,.2);
     }
   }
  
