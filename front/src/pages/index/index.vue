@@ -340,7 +340,7 @@ export default {
       if (count > this.validParticipantList.length) {
         this.context.numLuckyPeople = this.validParticipantList.length
       }
-      if (count < this.validParticipantList.length) {
+      if (count < 1) {
         this.context.numLuckyPeople = Math.min(1, this.validParticipantList.length)
       }
     },
