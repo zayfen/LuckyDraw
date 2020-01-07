@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export function upload (name, file) {
   return new Promise(resolve => {
-    let url = 'https://storage.xgeeklab.com/presignedUrl'
+    let url = 'https://cos.xgeeklab.com/presignedUrl'
     // 避免文件名重复
     let name = (new Date()).getTime() + Math.random().toString(36).substr(2) + Math.random().toString(36).substr(2)
     axios.get(url, {params: {name}}).then((res) => {
