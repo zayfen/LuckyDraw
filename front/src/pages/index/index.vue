@@ -1,7 +1,7 @@
 <template>
   <div class="luckydraw">
     <!-- title -->
-    <h2 class="title"><span style="color: #fcea00;">2019</span>年瓶子科技年会抽奖</h2>
+    <h2 class="title"><span style="color: #fcea00;">2020</span>年瓶子科技年会抽奖</h2>
 
     <el-row style="position: absolute; top: 170px; left: 0; right: 0; bottom: 0;">
       <!-- 签到成功展示区域 -->
