@@ -25,13 +25,22 @@ class Index implements BaseRouter {
   @POST('/api/register')
   public async register (ctx: Koa.Context) {
     let body: { avatar: string, name: string, session: string } = ctx.request.body
+    let sid: string = str2hex([body.session, body.name].join('--'))
     let user = new UserModel({
       user: body.name,
       avatar: body.avatar,
       session: body.session,
-      sid: str2hex([body.session, body.name].join('--'))
+      sid: sid
     })
+
     try {
+      // check user if in checkinlist
+      let found = await CheckinListModel.findOne({ session: body.session })
+      let checkinListUsers = found.users || []
+      if (checkinListUsers.indexOf(body.name) < 0) { // 此用户不在白名单中
+        return ctx.body = { code: -2, message: '非法用户，请联系管理员添加用户!' }
+      }
+      
       let userDoc: UserDocument = await user.save()
       let message: string = JSON.stringify({ action: 'NewUser', data: { user: userDoc.user, avatar: userDoc.avatar, session: userDoc.session } })
       WebSocketManager.getInstance().dispatchSessionMessage(body.session, message)

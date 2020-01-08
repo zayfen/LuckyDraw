@@ -1,6 +1,6 @@
 <template>
   <div class="register">
-    <p class="title">瓶子科技2019年会抽奖</p>
+    <p class="title">瓶子科技2020年会抽奖</p>
 
     <van-row type="flex" justify="center">
       <van-col :span="8">
@@ -26,6 +26,12 @@
     </van-row>
     <van-loading size="24px" v-show="loading" class="toast-loading">请求中...</van-loading>
     <van-loading size="24px" v-show="uploading" class="toast-loading">图片上传中...</van-loading>
+
+    <!-- success -->
+    <div class="register-success" v-if="success">
+      <p class="register-success__title-head">恭喜</p>
+      <p class="register-success__title-body">参与成功</p>
+    </div>
   </div>
 </template>
 
@@ -48,7 +54,8 @@ export default {
       session: '',
       intervalMinutes: DefaultIntervalMinutes,
       loading: false,
-      uploading: false
+      uploading: false,
+      success: false
     }
   },
 
@@ -111,6 +118,7 @@ export default {
 
         if (res.code === 0) {
           this.toast('参加成功')
+          this.success = true
         } else if (res.code === 11000) { // duplicate user name
           this.toast('此用户名已参加', 'warning')
         } else {
@@ -192,6 +200,35 @@ export default {
     background: rgba(0,0,0,.5);
     transform: translate(-50%, -50%);
     border: 1px solid @mainColor;
+  }
+}
+
+
+// 注册成功
+.register-success {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  background: linear-gradient(#ccc, @mainColor);
+  padding-top: 20%;
+
+  &__title-head {
+    font-size: 36px;
+    font-weight: 600;
+
+    color: @mainColor;
+  }
+
+  &__title-body {
+    font-size: 28px;
+    color: #fff2a7;
   }
 }
 </style>
