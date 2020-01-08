@@ -78,6 +78,7 @@ export default {
       font-size: 24px;
       color: #FFF2A7;
       text-align: center;
+      font-weight: 600;
     }
   }
 }

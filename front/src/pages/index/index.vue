@@ -1,5 +1,5 @@
 <template>
-  <div class="luckydraw">
+  <div class="luckydraw" :class="[context.state === context.S_CONFIRM ? 'luckydraw-confirming' : '']">
     <!-- title -->
     <h2 class="title"><span style="color: #fcea00;">2020</span>年瓶子科技年会抽奖</h2>
 
@@ -58,7 +58,8 @@
           <div class="luckydraw-main__hrl"
             v-if="context.state === context.S_START || context.state === context.S_DRAWING">
             <div class="luckydraw-main__hrl-viewport">
-              <div class="img-bg" 
+              <div class="img-bg"
+                v-show="context.state === context.S_DRAWING"
                 v-for="(img, index) in validParticipantList" 
                 :key="index" 
                 :style="{backgroundImage: 'url(' + img.src + ')', zIndex: index === context.randomIndex ? '1' : '0'}">
@@ -425,6 +426,9 @@ export default {
   background-color: rgba(#000, .15);
   border-radius: 10px;
 
+  transition: opacity .3s;
+  opacity: 1;
+
   &__title {
     text-align: center;
     color: #fff2a7;
@@ -600,6 +604,9 @@ export default {
   background-color: rgba(#000, .15);
   border-radius: 10px;
 
+  transition: opacity .3s;
+  opacity: 1;
+
   &__title {
     text-align: center;
     color: #fff2a7;
@@ -639,4 +646,22 @@ export default {
   }
 }
 
+</style>
+
+
+<style lang="less" scoped>
+.luckydraw-confirming {
+  .luckydraw-main__lpd {
+    width: 1070px;
+  }
+  .luckydraw-participant {
+    transition: opacity .3s;
+    opacity: 0;
+  }
+
+  .luckydraw-forbidden {
+    transition: opacity .3s;
+    opacity: 0;
+  }
+}
 </style>
