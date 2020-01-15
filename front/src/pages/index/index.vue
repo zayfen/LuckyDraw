@@ -60,13 +60,13 @@
             <div class="luckydraw-main__hrl-viewport">
               <div class="img-bg"
                 v-show="context.state === context.S_DRAWING"
-                v-for="(img, index) in validParticipantList" 
+                v-for="(img, index) in randomParticipantList" 
                 :key="index" 
-                :style="{backgroundImage: 'url(' + img.src + ')', zIndex: index === context.randomIndex ? '1' : '0'}">
+                :style="{backgroundImage: 'url(' + img.src + ')', zIndex: index === (context.randomIndex % randomParticipantList.length) ? '1' : '0'}">
               </div>
             </div>
             <span v-show="context.randomIndex > -1">
-              {{ validParticipantList[context.randomIndex] && validParticipantList[context.randomIndex].name}}
+              {{ randomParticipantList[context.randomIndex % randomParticipantList.length] && randomParticipantList[context.randomIndex % randomParticipantList.length].name}}
             </span>
           </div>
           <lucky-people-display class="luckydraw-main__lpd"
@@ -154,6 +154,11 @@ export default {
         registerUrl = `${registerUrl}&interval=${interval}`
       }
       return registerUrl
+    },
+
+    randomParticipantList () {
+      let maxLength = Math.max(20, this.validParticipantList.length)
+      return this.validParticipantList.slice(0, maxLength)
     },
 
     validParticipantList () { // 可以抽奖的人，签到并且还没有中奖
