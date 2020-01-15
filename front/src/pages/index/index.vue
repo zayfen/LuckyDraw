@@ -157,7 +157,7 @@ export default {
     },
 
     randomParticipantList () {
-      let maxLength = Math.max(20, this.validParticipantList.length)
+      let maxLength = Math.min(20, this.validParticipantList.length)
       return this.validParticipantList.slice(0, maxLength)
     },
 
