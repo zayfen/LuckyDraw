@@ -122,10 +122,11 @@ class Index implements BaseRouter {
 
   @GET('/api/getLatestLuck')
   public async getLatestLuck (ctx: Koa.Context) {
-    const { session: string, currentLuckId: number } = ctx.request.query
+    const { session, currentLuckId } = ctx.request.query
     try {
       const luckDoc = LuckModel.findOne({ session,  luckId: currentLuckId + 1 })
-
+      ctx.body = { code: 0, message: 'success', data: luckDoc 
+    }
     } catch (err) {
       const me = err as MongoError
       ctx.body = { code: me.code, message: me.errmsg }
@@ -157,6 +158,15 @@ class Index implements BaseRouter {
   @GET('/api/queryLuckyPeople')
   public async queryLuckyPeople (ctx: Koa.Context) {
     const { session, luckId } = ctx.request.query
+    console.log('/api/queryLuckyPeople: ', ctx.request.query)
+    try {
+      const luckyPeopleDoc = await LuckyPeopleModel.findOne({ session, luckId })
+      ctx.body = { code: 0, message: 'success', data: luckyPeopleDoc.users }
+
+    } catch (err) {
+      const mongoError = err as MongoError
+      ctx.body = { code: mongoError.code, message: mongoError.errmsg }
+    }
   }
 }
 
