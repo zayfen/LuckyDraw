@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-	  "postinstall": "pm2 install typescript ts-node",
+    "postinstall": "pm2 install typescript ts-node",
     "local-dev": "pm2 -i 2 --name luckydraw start src/server.ts --watch",
     "dev": "pm2 start ecosystem.config.js",
     "start": "pm2 start ecosystem.config.js --env production",
