@@ -103,30 +103,34 @@ class Index implements BaseRouter {
   // 创建一个新的奖品抽奖
   @POST('/api/createLuck')
   public async createLuck (ctx: Koa.Context) {
-    const { session, prizes, count } = ctx.request.body
-    console.log(`/api/createLuck  session: ${session}; prizes: ${prizes}; count: ${count}`)
+    const { session, prizes, count, startTime } = ctx.request.body
+    console.log(`/api/createLuck  session: ${session}; prizes: ${prizes}; count: ${count}; startTime: ${startTime}`)
     const luck = new LuckModel({
       session,
       prizes,
-      count
+      count,
+      startTime: startTime,
+      uid: session + '-' + startTime
     })
 
     try {
       const luckDoc: LuckDocument = await luck.save()
+      console.log('/api/createLuck response; ', luckDoc)
       ctx.body = { code: 0, message: 'success', data: luckDoc }
     } catch (err) {
       const mongoError = err as MongoError
+      console.log('/api/createLuck error: ', err) 
       ctx.body = { code: mongoError.code, message: mongoError.errmsg }
     }
   }
 
-  @GET('/api/getLatestLuck')
-  public async getLatestLuck (ctx: Koa.Context) {
-    const { session, currentLuckId } = ctx.request.query
+  @GET('/api/getLucks')
+  public async getLucks (ctx: Koa.Context) {
+    const { session } = ctx.request.query
     try {
-      const luckDoc = LuckModel.findOne({ session,  luckId: currentLuckId + 1 })
-      ctx.body = { code: 0, message: 'success', data: luckDoc 
-    }
+      const luckDocs = await LuckModel.find({ session })
+      console.log(`/api/getLucks session: ${session} ; luckDocs: ${luckDocs}`)
+      ctx.body = { code: 0, message: 'success', data: luckDocs }
     } catch (err) {
       const me = err as MongoError
       ctx.body = { code: me.code, message: me.errmsg }
@@ -136,10 +140,9 @@ class Index implements BaseRouter {
 
   @POST('/api/saveLuckyPeople')
   public async saveLuckyPeople (ctx: Koa.Context) {
-    const { session, luckId, luckPeople } = ctx.request.body
+    const { uid, luckPeople } = ctx.request.body
     const luckyPeople = new LuckyPeopleModel({
-      session: session,
-      luckId: luckId,
+      luckId: uid,
       users: luckPeople
     })
 
@@ -157,10 +160,10 @@ class Index implements BaseRouter {
 
   @GET('/api/queryLuckyPeople')
   public async queryLuckyPeople (ctx: Koa.Context) {
-    const { session, luckId } = ctx.request.query
+    const { luckId } = ctx.request.query
     console.log('/api/queryLuckyPeople: ', ctx.request.query)
     try {
-      const luckyPeopleDoc = await LuckyPeopleModel.findOne({ session, luckId })
+      const luckyPeopleDoc = await LuckyPeopleModel.findOne({ luckId })
       ctx.body = { code: 0, message: 'success', data: luckyPeopleDoc.users }
 
     } catch (err) {

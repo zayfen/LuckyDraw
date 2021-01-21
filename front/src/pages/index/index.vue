@@ -1,7 +1,7 @@
 <template>
   <div class="luckydraw" :class="[context.state === context.S_CONFIRM ? 'luckydraw-confirming' : '']">
     <!-- title -->
-    <h2 class="title"><span style="color: #fcea00;">2020</span>年瓶子科技-蜕变.前行，年会抽奖现场</h2>
+    <h2 class="title"><span style="color: #fcea00;">2021</span>年瓶子科技-蜕变.前行，年会抽奖现场</h2>
 
     <el-row style="position: absolute; top: 170px; left: 0; right: 0; bottom: 0;">
       <!-- 签到成功展示区域 -->
@@ -99,6 +99,15 @@
       </lucky-white-list>      
     </div>
 
+    <!-- 增加抽奖会话 -->
+    <div class="luck-session">
+      <a class="luck-session-button" href="javascript: void 0;" @click="luckSessionVisible = !luckSessionVisible">抽奖会话</a>
+      <luck-board 
+        class="luck-board"
+        :style="{transform: luckSessionVisible ? 'translateY(35px)' : 'translateY(130%)'}"
+      />
+    </div>
+
   </div>  
 </template>
 
@@ -107,6 +116,7 @@ import LuckyImageGrid from '@/components/lucky-image-grid/lucky-image-grid'
 import LuckyRegisterQrcode from '@/components/lucky-register-qrcode/lucky-register-qrcode'
 import LuckyWhiteList from '@/components/lucky-white-list/lucky-white-list'
 import LuckyPeopleDisplay from '@/components/lucky-people-display/lucky-people-display'
+import LuckBoard from '@/components/luck-board/luck-board'
 
 import { integerRangeRandom } from '@/utils/math'
 
@@ -119,9 +129,11 @@ export default {
     LuckyImageGrid,
     LuckyRegisterQrcode,
     LuckyWhiteList,
-    LuckyPeopleDisplay
+    LuckyPeopleDisplay,
+    LuckBoard
   },
   data () {
+    LuckBoard
     return {
       participantList: [], // 所有的参与者
       session: '',
@@ -138,6 +150,8 @@ export default {
         luckyPeople: [],
         proposalLuckyPeopleIndexes: []
       },
+
+      luckSessionVisible: false
     }
   },
 
@@ -647,6 +661,36 @@ export default {
   }
 
   .lucky-white-list {
+    height: 860px;
+  }
+}
+
+.luck-session {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 50px;
+  width: 100%;
+  z-index: 100;
+  text-align: center;
+
+  &-button {
+    position: absolute;
+    top: 114px;
+    right: 0;
+    display: block;
+    width: 146px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    background: #fff;
+    border-radius: 50px 0 0 50px;
+  }
+
+  .luck-board {
+    margin: 0 auto;
+    width: 60%;
     height: 860px;
   }
 }

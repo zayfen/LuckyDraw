@@ -65,6 +65,22 @@ class Api {
     let url = buildUrl('upsertCheckinList')
     return Net.post(url, { session, users })
   }
+
+  /**
+   * 提交一个新的抽奖会话
+   */
+  static commitNewLuckSession ({ session, prizes, count, startTime }) {
+    const url = buildUrl('createLuck')
+    return Net.post(url, { session, prizes, count, startTime })
+  }
+
+  /**
+   * 获取一个session的所有抽奖会话
+   */
+  static fetchLuckSessions (session) {
+    const url = buildUrl('getLucks')
+    return Net.get(url, { session })
+  }
 }
 
 

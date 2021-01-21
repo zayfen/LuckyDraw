@@ -9,5 +9,13 @@ module.exports = {
   lintOnSave: true,
   chainWebpack: (config) => {
     config.resolve.alias.set('@', resolvePath('src'))
+  },
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3030',
+        changeOrigin: true
+      }
+    }
   }
 }
