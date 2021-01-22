@@ -81,6 +81,11 @@ class Api {
     const url = buildUrl('getLucks')
     return Net.get(url, { session })
   }
+
+  static commitLuckyPeople ({ session, luckId, people }) {
+    const url = buildUrl('saveLuckyPeople')
+    return Net.post(url, { session, luckId, people })
+  }
 }
 
 

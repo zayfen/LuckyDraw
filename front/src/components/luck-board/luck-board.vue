@@ -21,6 +21,7 @@
     </div>
 
     <el-button 
+      v-if="showCreateButton"
       type="primary"
       size="small"
       style="position: absolute; top: 0;right: 30px;margin-top: 20px;"
@@ -72,8 +73,16 @@ import Api from '../../api'
 
 export default {
   name: 'LuckBoard',
+  props: {
+    showCreateButton: {
+      type: Boolean,
+      required: false,
+      default: true
+    }
+  },
   data () {
     return {
+      luckyPeople: [],
       sessionsData: [
       ],
       sessionsSchema: [
@@ -87,14 +96,24 @@ export default {
             return [dd.getFullYear(), dd.getMonth()+1, dd.getDate()].join('/') + '  ' + [dd.getHours(), dd.getMinutes(), dd.getSeconds()].join(':')
           }
         },
-        { label: '中奖人员', prop: 'lucks' },
+        { 
+          label: '中奖人员', 
+          formatter: (row, col, val) => {
+            let luckId = row.luckId
+            let lp = this.luckyPeople.find(lp => lp.luckId === luckId)
+            return lp ? lp.users.join(',') : '-'
+          }
+        },
         { 
           label: '抽奖会话状态', 
           prop: 'startTime', 
           formatter: (row, col, val) => {
-            let now = Date.now()
-            return now > (+val) ? '抽奖已经开始' : '抽奖未开始'
-          } 
+            let finished = row.finished
+            if (finished) {
+              return '已结束'
+            }
+            return val === this.currentLuckSession.startTime ? '进行中' : '未开始'
+          }
         }
       ],
 
@@ -108,16 +127,19 @@ export default {
     }
   },
 
+  computed: {
+    currentLuckSession () {
+      const sessions = this.sessionsData.filter(s => !s.finished)
+      sessions.sort((a, b) => a.startTime - b.startTime)
+      return sessions[0]
+    }
+  },
+
   created () {
     if (!this.session) {
       this.$message.error('URL中请指定session')
     } else {
-
-      Api.fetchLuckSessions(this.session).then(res => {
-        if (res.code === 0) {
-          this.sessionsData = res.data
-        }
-      })
+      this.requestLuckSessions()
     }
   },
 
@@ -125,6 +147,22 @@ export default {
     // 打开创建抽奖会话的form表单
     toggleLuckSessionForm () {
       this.formVisible = !this.formVisible
+    },
+
+    requestLuckSessions () {
+      Api.fetchLuckSessions(this.session).then(res => {
+        if (res.code === 0) {
+          this.sessionsData = res.data.luckSessions
+          this.luckyPeople = res.data.luckyPeople
+          this.emitCurrentLuckSession()
+        }
+
+        // 每2秒拉一次数据
+        setTimeout(this.requestLuckSessions.bind(this), 2000)
+      }).catch(err => {
+        // 每3秒拉一次数据
+        setTimeout(this.requestLuckSessions.bind(this), 3000)
+      })
     },
 
     // 添加新的抽奖
@@ -137,13 +175,19 @@ export default {
         prizes: this.sessionForm.desc,
         count: this.sessionForm.count,
         startTime: this.sessionForm.startTime
+
       }).then(res => {
         if (res.code === 0) {
           this.$message.success('创建成功')
+          this.requestLuckSessions()
         }
       }).catch(err => {
         this.$message.error(err.message)
       })
+    },
+
+    emitCurrentLuckSession () {
+      this.$emit('change', this.currentLuckSession)
     },
 
     cancel () {

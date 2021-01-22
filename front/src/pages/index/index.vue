@@ -53,6 +53,7 @@
             placeholder="中奖人数" 
             :max="validParticipantList.length" 
             :min="0"
+            :disabled="true"
             @input="onCountInputChange"/>
           
           <div class="luckydraw-main__hrl"
@@ -102,9 +103,10 @@
     <!-- 增加抽奖会话 -->
     <div class="luck-session">
       <a class="luck-session-button" href="javascript: void 0;" @click="luckSessionVisible = !luckSessionVisible">抽奖会话</a>
-      <luck-board 
+      <luck-board
         class="luck-board"
         :style="{transform: luckSessionVisible ? 'translateY(35px)' : 'translateY(130%)'}"
+        @change="onLuckSessionChange"
       />
     </div>
 
@@ -135,7 +137,12 @@ export default {
   data () {
     LuckBoard
     return {
-      participantList: [], // 所有的参与者
+      participantList: [
+        {session: '2021', name: '张云峰', src: 'https://cdn.dribbble.com/users/2076798/screenshots/14007967/media/22cd0a660328ff5593cecdb58491c770.jpg?compress=1&resize=400x300', forbidden: false },
+        {session: '2021', name: '张三', src: 'https://cdn.dribbble.com/users/2076798/screenshots/14007967/media/22cd0a660328ff5593cecdb58491c770.jpg?compress=1&resize=400x300', forbidden: false },
+        {session: '2021', name: '张云峰2', src: 'https://cdn.dribbble.com/users/2076798/screenshots/14007967/media/22cd0a660328ff5593cecdb58491c770.jpg?compress=1&resize=400x300', forbidden: false },
+        {session: '2021', name: '张三2', src: 'https://cdn.dribbble.com/users/2076798/screenshots/14007967/media/22cd0a660328ff5593cecdb58491c770.jpg?compress=1&resize=400x300', forbidden: false }
+      ], // 所有的参与者
       session: '',
       whiteListVisible: false,
       whiteList: [], // only save name
@@ -144,14 +151,15 @@ export default {
         S_START: 'start',
         S_DRAWING: 'drawing',
         S_CONFIRM: 'confirm',
-        numLuckyPeople: 1,
+        numLuckyPeople: 0,
         state: 'start', // 抽奖状态: start, drawing, confirm,  start => drawing => confirm => start
         randomIndex: -1,
         luckyPeople: [],
         proposalLuckyPeopleIndexes: []
       },
 
-      luckSessionVisible: false
+      luckSessionVisible: false,
+      currentLuckSession: {}
     }
   },
 
@@ -296,8 +304,11 @@ export default {
 
     // 确定抽奖结果有效
     onConfirmYesButtonClick () {
+      const luckyPeopleNames = []
       // 中奖人 从参与抽奖人中移除， 加入到已中奖的栏中
       this.context.luckyPeople.forEach((people) => {
+        luckyPeopleNames.push(people.name)
+
         Array.from({length: this.participantList.length}).forEach((v, index) => {
           let item = this.participantList[index]
           if (item.name === people.name) {
@@ -306,6 +317,11 @@ export default {
           }
         })
       })
+
+      // 保存抽奖的结果
+      if (luckyPeopleNames.length > 0) {
+        this.commitLuckyPeople(luckyPeopleNames.join(','))
+      }
 
       // 本地存储中奖人姓名
       this.saveLuckyNamesLocal()
@@ -375,7 +391,25 @@ export default {
       let key = this.session + '-lucky-names'
       let forbiddenNamesStr = localStorage.getItem(key) || JSON.stringify([])
       return JSON.parse(forbiddenNamesStr)
-    }
+    },
+
+    onLuckSessionChange (luckSession) {
+      this.currentLuckSession = luckSession
+      this.context.numLuckyPeople = this.currentLuckSession ? this.currentLuckSession.count : 0
+    },
+
+
+    commitLuckyPeople (people) {
+      let session = this.currentLuckSession.session
+      let luckId = this.currentLuckSession.luckId
+      Api.commitLuckyPeople({ session, luckId, people }).then(res => {
+        if (res.code === 0) {
+          this.$message.success("中奖信息保存成功")
+        } else {
+          this.$message.error(`中奖信息保存失败(${res.code})`)
+        }
+      })
+    },
   }
 }
 </script>

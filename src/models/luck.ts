@@ -5,7 +5,7 @@ export interface LuckDocument extends Document {
   prizes: string,
   count: number,
   startTime: number,
-  uid: string,
+  luckId: string,
   finished: boolean
 }
 
@@ -14,10 +14,10 @@ const LuckSchema: Schema= new Schema({
   prizes: { type: Schema.Types.String, required: true },
   count: { type: Schema.Types.Number, required: false, default: 1 },
   startTime: { type: Schema.Types.Number, required: true },
-  uid: { type: Schema.Types.String, required: true, unique: true },
+  luckId: { type: Schema.Types.String, required: true, unique: true },
   finished: { type: Schema.Types.Boolean, required: false, default: false }
 })
 
-LuckSchema.index({ uid: 1 }, { unique: true })
+LuckSchema.index({ luckId: 1 }, { unique: true })
 
 export const LuckModel: Model<LuckDocument> = model('Luck', LuckSchema)
