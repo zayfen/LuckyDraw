@@ -74,7 +74,7 @@ app.on('db-error', (err: any) => {
   process.emit('SIGINT', 'SIGINT')
 })
 
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 3030
 app.listen(PORT);
 
 
