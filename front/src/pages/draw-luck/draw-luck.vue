@@ -17,8 +17,9 @@
           <span 
             class="word-loop-anim"
             style="display: inline-block;height: 100%;margin-left:100%;word-break:keep-all;white-space:nowrap;"
+            :style="wordsLoopStyle"
           >
-          H张云峰，张云峰，张云峰，张云峰，张云峰，张云峰，张云峰，张云峰，张云峰，张云峰D，
+          {{allPeopleNames}}
           </span>
         </div>
       </div>
@@ -69,6 +70,7 @@ export default {
       },
 
       nowTimestamp: Date.now(),
+      allPeopleNames: '上课的接口数据反馈收集反馈收集反馈是否我微商的看法开始疯狂适当加分考生加分考生张云峰，张云峰，张云峰，张云峰，张云峰',
       allLucks: [
         { prize: 'Iphone 12', count: 1, owner: '张云峰' },
         { prize: 'Mac pro', count: 1, owner: '张云峰' },
@@ -81,6 +83,14 @@ export default {
   },
 
   computed: {
+    wordsLoopStyle () {
+      // 20个字，5s
+      const duration = this.allPeopleNames.length / 40 * 5
+      return {
+        animationDuration: `${duration}5s`,
+      }
+    },
+
     stateText () {
       if (this.couldDraw) {
         return '点击我抽奖，点的越快中奖概率越高哦^_^'
@@ -132,7 +142,7 @@ export default {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-200%);
+    transform: translateX(-120%);
   }
 }
 
