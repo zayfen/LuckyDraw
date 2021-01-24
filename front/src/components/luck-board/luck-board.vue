@@ -205,5 +205,11 @@ export default {
   overflow-y: auto;
   padding: 30px;
   box-sizing: border-box;
+
+  &-title {
+    font-size: 26px;
+    font-weight: 600;
+    color: rgb(189,43,36);
+  }
 }
 </style>

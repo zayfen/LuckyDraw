@@ -86,6 +86,15 @@ class Api {
     const url = buildUrl('saveLuckyPeople')
     return Net.post(url, { session, luckId, people })
   }
+
+  /**
+   * 获取所有的参加抽奖的用户
+   * @param {string} session 
+   */
+  static fetchUsers (session) {
+    const url = buildUrl(`sessions/${session}/users`)
+    return Net.get(url)
+  }
 }
 
 

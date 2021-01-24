@@ -22,8 +22,8 @@ export default new Router({
       component: Register
     },
     {
-      path: '/draw-luck',
-      name: 'draw-luck',
+      path: '/goodluck/:session',
+      name: 'goodluck',
       component: DrawLuck
     }
   ]

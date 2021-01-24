@@ -83,6 +83,7 @@ process.on('SIGINT', async function () {
   console.log('graceful shutdown...')
   await mongoose.disconnect()
   websocketHeartBeatTimerTask.stop()
+  process.exit(0)
 })
 
 // websocket keep-alive

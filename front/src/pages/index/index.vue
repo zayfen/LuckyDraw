@@ -102,7 +102,13 @@
 
     <!-- 增加抽奖会话 -->
     <div class="luck-session">
-      <a class="luck-session-button" href="javascript: void 0;" @click="luckSessionVisible = !luckSessionVisible">抽奖会话</a>
+      <a 
+        class="luck-session-button" 
+        href="javascript: void 0;" 
+        @click="luckSessionVisible = !luckSessionVisible"
+      >
+        抽奖会话
+      </a>
       <luck-board
         class="luck-board"
         :style="{transform: luckSessionVisible ? 'translateY(35px)' : 'translateY(130%)'}"
@@ -320,7 +326,7 @@ export default {
 
       // 保存抽奖的结果
       if (luckyPeopleNames.length > 0) {
-        this.commitLuckyPeople(luckyPeopleNames.join(','))
+        this.commitLuckyPeople(luckyPeopleNames)
       }
 
       // 本地存储中奖人姓名
@@ -718,8 +724,11 @@ export default {
     height: 50px;
     line-height: 50px;
     text-align: center;
-    background: #fff;
+    background: rgba(255,255,255,.15);
     border-radius: 50px 0 0 50px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff2a7;
   }
 
   .luck-board {

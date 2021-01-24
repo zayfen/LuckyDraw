@@ -5,13 +5,25 @@
         当前奖品
       </div>
 
-      <div class="draw-luck-prize">
+      <div 
+        v-if="currentLuckSession" 
+        class="draw-luck-prize"
+      >
         {{currentLuckSession.prizes}}
         <span style="margin: 0 0.3rem;color:#ffd790;">x</span>
         {{currentLuckSession.count}}
       </div>
+      <div 
+        v-else
+        class="draw-luck-prize"
+      > 
+        暂无抽奖
+      </div>
 
-      <div class="draw-luck-luckypeople">
+      <div
+        v-if="currentLuckSession"
+       class="draw-luck-luckypeople"
+      >
         <div class="luckypeople-title">中奖名单</div>
         <div class="luckypeople-display">
           <span 
@@ -24,7 +36,10 @@
         </div>
       </div>
 
-      <div class="luck-button breath">
+      <div 
+        class="luck-button"
+        :class="[currentLuckSession ? 'breath' : '' ]"
+      >
       </div>
 
       <!-- 中将名单 -->
@@ -57,28 +72,18 @@
 
 
 <script>
-import LuckBoard from '@/components/luck-board/luck-board.vue'
+import Api from '../../api/index'
+
 export default {
-  components: { LuckBoard },
   
   data () {
     return {
-      currentLuckSession: {
-        prizes: 'iphone12iphone12iphone12iphone12iphone12iphone12iphone12',
-        count: 10,
-        startTime: 0
-      },
+      session: this.$route.params.session,
+      luckySessions: [],
+      luckyPeople: [],
 
       nowTimestamp: Date.now(),
-      allPeopleNames: '上课的接口数据反馈收集反馈收集反馈是否我微商的看法开始疯狂适当加分考生加分考生张云峰，张云峰，张云峰，张云峰，张云峰',
-      allLucks: [
-        { prize: 'Iphone 12', count: 1, owner: '张云峰' },
-        { prize: 'Mac pro', count: 1, owner: '张云峰' },
-        { prize: '苹果耳机', count: 1, owner: '张云峰' },
-        { prize: '电饭锅', count: 1, owner: '张云峰' },
-        { prize: '五万元奖金', count: 1, owner: '张云峰' },
-        { prize: '一个月调休', count: 1, owner: '张云峰' },
-      ]
+      allPeopleNames: '',
     }
   },
 
@@ -91,16 +96,15 @@ export default {
       }
     },
 
-    stateText () {
-      if (this.couldDraw) {
-        return '点击我抽奖，点的越快中奖概率越高哦^_^'
-      }
-      return ((this.nowTimestamp - this.currentLuckSession.startTime) / 1000) + ' 秒后开始抽奖'
-    },
-
     // 是否可以抽奖了
     couldDraw () {
       return this.currentLuckSession && this.currentLuckSession.startTime <= this.nowTimestamp
+    },
+
+    currentLuckSession () {
+      const sessions = this.luckySessions.filter(s => !s.finished)
+      sessions.sort((a, b) => a.startTime - b.startTime)
+      return sessions[0]
     },
 
     luckSessionStartTime () {
@@ -110,18 +114,65 @@ export default {
 
       let date = new Date(this.currentLuckSession.startTime)
       return [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('/') + '  ' + [date.getHours(), date.getMinutes(), date.getSeconds()].join(':')
+    },
+
+    allLucks () {
+      const list = this.luckyPeople.map(lp => {
+        const session = this.luckySessions.find(ls => ls.luckId === lp.luckId)
+        if (!session) {
+          return void 0
+        }
+        return {...lp, prize: session.prizes }
+      })
+      const allLucks = []
+      console.log('allLucks.list: ', list)
+      list.forEach(item => {
+        item?.users.forEach(user => {
+          console.log("user: ", user)
+          allLucks.push({ prize: item.prize, count: 1, owner: user[0] })
+        })
+      })
+      console.log('allLucks: ', allLucks)
+      return allLucks
     }
   },
 
   created () {
+    if (!this.session) {
+      this.$message.error('URL中请指定session')
+    } else {
+      this.requestLuckSessions()
+      this.fetchUsers()
+    }
+
     setInterval(() => {
       this.nowTimestamp = Date.now()
     }, 1000);
   },
 
   methods: {
-    onCurrentLuckChange (luck) {
-      this.currentLuckSession = luck
+    fetchUsers () {
+      Api.fetchUsers(this.session).then(res => {
+        if (res.code === 0) {
+          const users = res.data || []
+          this.allPeopleNames = users.map(u => u.user).join('，')
+        }
+      })
+    },
+
+    requestLuckSessions () {
+      Api.fetchLuckSessions(this.session).then(res => {
+        if (res.code === 0) {
+          this.luckySessions = res.data.luckSessions
+          this.luckyPeople = res.data.luckyPeople
+        }
+
+        // 每2秒拉一次数据
+        setTimeout(this.requestLuckSessions.bind(this), 2000)
+      }).catch(err => {
+        // 每3秒拉一次数据
+        setTimeout(this.requestLuckSessions.bind(this), 3000)
+      })
     },
 
     onLuckyButtonClick () {
@@ -186,7 +237,7 @@ export default {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-
+  overflow-x: hidden; 
   overflow-y: auto;
 
   .draw-luck {

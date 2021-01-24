@@ -11,7 +11,6 @@ import { LuckModel, LuckDocument } from '../../models/luck'
 import { LuckyPeopleDocument, LuckyPeopleModel } from '../../models/lucky_people'
 import { WebSocketManager } from '../../manager/websocket_manager'
 import { MongoError } from 'mongodb'
-import { textChangeRangeIsUnchanged } from 'typescript'
 
 function str2hex (str: string): string {
   return Buffer.from(str, 'utf-8').toString('hex')
@@ -99,6 +98,20 @@ class Index implements BaseRouter {
     })
   }
 
+  @GET('/api/sessions/:session/users')
+  public async fetchSessionUsers (ctx: Koa.Context) {
+    const { session } = ctx.params
+    console.log("/api/sessions/session: ", ctx.params)
+    try {
+      const users = await UserModel.find({ session })
+      console.log('/api/sessions/', users)
+      ctx.body = { code: 0, message: 'success', data: users }
+    } catch (err) {
+      const error = err as MongoError
+      ctx.body = { code: error.code, message: error.errmsg }
+    }
+  }
+
 
   // 创建一个新的奖品抽奖
   @POST('/api/createLuck')
@@ -129,7 +142,7 @@ class Index implements BaseRouter {
     const { session } = ctx.request.query
     try {
       const luckDocs = await LuckModel.find({ session })
-      console.log(`/api/getLucks session: ${session} ; luckDocs: ${luckDocs}`)
+      // console.log(`/api/getLucks session: ${session} ; luckDocs: ${luckDocs}`)
       const luckyPeopleDocs = await LuckyPeopleModel.find({ session })
       
       ctx.body = { code: 0, message: 'success', data: { luckSessions: luckDocs, luckyPeople: luckyPeopleDocs } }

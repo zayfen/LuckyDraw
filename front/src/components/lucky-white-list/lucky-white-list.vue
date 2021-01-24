@@ -1,7 +1,7 @@
 <template>
   <div class="lucky-white-list">
     <el-card shadow="always">
-      <h5 style="padding: 0; margin: 0; color: #BD2B24;">
+      <h5 style="padding: 0; margin: 0; color: #BD2B24;font-size:26px;">
         签到表({{tableData.filter(item => list.includes(item.name.trim())).length}}/{{ tableData.filter(item => item.name.trim()).length }})
       </h5>
       <el-table 
