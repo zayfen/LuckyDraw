@@ -39,6 +39,8 @@
       <div 
         class="luck-button"
         :class="[currentLuckSession ? 'breath' : '' ]"
+        :style="luckButtonStyle"
+        @click="onLuckButtonClick"
       >
       </div>
 
@@ -84,6 +86,8 @@ export default {
 
       nowTimestamp: Date.now(),
       allPeopleNames: '',
+      luckButtonClicks: 0,
+      luckButtonHandler: 0
     }
   },
 
@@ -93,6 +97,21 @@ export default {
       const duration = this.allPeopleNames.length / 40 * 5
       return {
         animationDuration: `${duration}5s`,
+      }
+    },
+
+    luckButtonStyle () {
+      if (this.luckButtonClicks <= 0) {
+        return {
+          animationDuration: '0ms'
+        }
+      }
+
+      const maxClicks = 5000
+      
+      const durationMs = maxClicks / this.luckButtonClicks
+      return {
+        animationDuration: `${durationMs}ms`
       }
     },
 
@@ -175,13 +194,33 @@ export default {
       })
     },
 
-    onLuckyButtonClick () {
+    onLuckButtonClick () {
       if (!this.couldDraw) {
         return this.$message.error('还没有到抽奖时间！')
       }
-
+      
       // 开始抽奖的动画
-      this.$message.success("正在抽奖")
+      this.luckButtonClicks += 1
+      console.log('luckButtonClicks: ', this.luckButtonClicks)
+
+      // 300ms之后，开始冷静
+      clearTimeout(this.luckButtonHandler)
+      this.luckButtonHandler = setTimeout(() => {
+        this.calmdown()
+      }, 150)
+    },
+
+    calmdown () {
+      clearTimeout(this.luckButtonHandler)
+      if (this.luckButtonClicks < 5) {
+        this.luckButtonClicks = 0
+        return
+      }
+      this.luckButtonClicks = this.luckButtonClicks * 0.9
+
+      this.luckButtonHandler = setTimeout(() => {
+        this.calmdown()
+      }, 150)
     }
   }
 }
@@ -201,11 +240,14 @@ export default {
   0% {
     transform: scale(1);
   }
-  40% {
+  // 40% {
+  //   transform: scale(1.3);
+  // }
+  // 60% {
+  //   transform: scale(1.2);
+  // }
+  50% {
     transform: scale(1.3);
-  }
-  60% {
-    transform: scale(1.2);
   }
   100% {
     transform: scale(1);
@@ -218,6 +260,9 @@ export default {
 
 .breath {
   animation: zoom 1s linear infinite;
+  transform: translateZ(0);  // 开启硬件加速
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
 }
 </style>
 
