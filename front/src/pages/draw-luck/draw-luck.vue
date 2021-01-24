@@ -240,15 +240,13 @@ export default {
   0% {
     transform: scale(1);
   }
-  // 40% {
-  //   transform: scale(1.3);
-  // }
-  // 60% {
-  //   transform: scale(1.2);
-  // }
-  50% {
+  40% {
     transform: scale(1.3);
   }
+  60% {
+    transform: scale(1.2);
+  }
+
   100% {
     transform: scale(1);
   }
