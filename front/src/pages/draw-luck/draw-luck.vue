@@ -383,9 +383,8 @@ export default {
     .luck-table {
       width: 329.5/@baseFontSize;
       height: auto;
-      opacity: 0.68;
-      background: rgba(255,215,144,0.32);
-      border: 1/@baseFontSize solid #FFD790;
+      background: rgba(255,215,144,0.25);
+      border: 1/@baseFontSize solid rgba(255, 215, 144, 0.6);
       border-radius: 17/@baseFontSize;
       padding: 1rem 0;
       margin-top: 15/@baseFontSize;
