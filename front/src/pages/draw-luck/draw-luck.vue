@@ -21,10 +21,10 @@
       </div>
 
       <div
-        v-if="currentLuckSession"
-       class="draw-luck-luckypeople"
+        v-if="false"
+        class="draw-luck-luckypeople"
       >
-        <div class="luckypeople-title">中奖名单</div>
+        <div class="luckypeople-title">参与名单</div>
         <div class="luckypeople-display">
           <span 
             class="word-loop-anim"
@@ -36,6 +36,15 @@
         </div>
       </div>
 
+
+      <!-- 能量条 -->
+      <div class="progress">
+        <!-- <progress max="100" :value="progressValue"/> -->
+        <div 
+          class="progress-inner" 
+          :style="{width: progressValue + '%'}">
+        </div>
+      </div>
       <div 
         class="luck-button"
         :class="[currentLuckSession ? 'breath' : '' ]"
@@ -68,6 +77,50 @@
           </div>
         </div>
       </div>
+
+      <!-- 当前中奖的用户的弹窗 -->
+      <div 
+        class="dialog" 
+        :class="{ 'dialog-show' : newLucks.length > 0 }"
+      >
+        <div 
+          class="close-button"
+          @click="updatePreAllLucks"
+        >
+          <el-button 
+            type="danger" 
+            icon="el-icon-circle-close" 
+            circle 
+          />
+        </div>
+
+        <div class="dialog-inner">
+          <div class="luckypeople-table">
+            <span class="luckypeople-table-title luck-title">
+              中奖名单
+            </span>
+            <div class="luck-table">
+              <div class="luck-table-head row">
+                <div class="head col">奖品名称</div>
+                <div class="head col">奖品数量</div>
+                <div class="head col">中奖名单</div>
+              </div>
+              <div class="luck-table-body">
+                <div 
+                  v-for="(luck, index) in newLucks"
+                  :key="index" 
+                  class="row"
+                >
+                  <div class="col">{{luck.prize}}</div>
+                  <div class="col">{{luck.count}}</div>
+                  <div class="col">{{luck.owner}}</div>
+                </div>
+              </div>
+            </div>
+          </div>        
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -87,7 +140,9 @@ export default {
       nowTimestamp: Date.now(),
       allPeopleNames: '',
       luckButtonClicks: 0,
-      luckButtonHandler: 0
+      luckButtonHandler: 0,
+
+      preAllLucks: [] // 保存上一轮的的幸运儿
     }
   },
 
@@ -100,6 +155,10 @@ export default {
       }
     },
 
+    progressValue () {
+      return Math.min(this.luckButtonClicks / 1.5, 100)
+    },
+
     luckButtonStyle () {
       if (this.luckButtonClicks <= 0) {
         return {
@@ -107,7 +166,7 @@ export default {
         }
       }
 
-      const maxClicks = 5000
+      const maxClicks = 2000
       
       const durationMs = maxClicks / this.luckButtonClicks
       return {
@@ -117,7 +176,8 @@ export default {
 
     // 是否可以抽奖了
     couldDraw () {
-      return this.currentLuckSession && this.currentLuckSession.startTime <= this.nowTimestamp
+      // return this.currentLuckSession && this.currentLuckSession.startTime <= this.nowTimestamp
+      return !!this.currentLuckSession
     },
 
     currentLuckSession () {
@@ -151,8 +211,19 @@ export default {
           allLucks.push({ prize: item.prize, count: 1, owner: user[0] })
         })
       })
+
       console.log('allLucks: ', allLucks)
       return allLucks
+    },
+
+    newLucks () {
+      if (this.allLucks.length === this.preAllLucks.allLucks) {
+        return []
+      }
+
+      // 产生了新的抽奖
+      let diff = this.allLucks.filter(x => -1 === this.preAllLucks.findIndex(y => y.prize === x.prize && y.count === x.count && y.owner === x.owner))
+      return diff.slice(0)
     }
   },
 
@@ -161,23 +232,23 @@ export default {
       this.$message.error('URL中请指定session')
     } else {
       this.requestLuckSessions()
-      this.fetchUsers()
+      // this.fetchUsers()
     }
 
-    setInterval(() => {
-      this.nowTimestamp = Date.now()
-    }, 1000);
+    // setInterval(() => {
+    //   this.nowTimestamp = Date.now()
+    // }, 1000);
   },
 
   methods: {
-    fetchUsers () {
-      Api.fetchUsers(this.session).then(res => {
-        if (res.code === 0) {
-          const users = res.data || []
-          this.allPeopleNames = users.map(u => u.user).join('，')
-        }
-      })
-    },
+    // fetchUsers () {
+    //   Api.fetchUsers(this.session).then(res => {
+    //     if (res.code === 0) {
+    //       const users = res.data || []
+    //       this.allPeopleNames = users.map(u => u.user).join('，')
+    //     }
+    //   })
+    // },
 
     requestLuckSessions () {
       Api.fetchLuckSessions(this.session).then(res => {
@@ -196,7 +267,7 @@ export default {
 
     onLuckButtonClick () {
       if (!this.couldDraw) {
-        return this.$message.error('还没有到抽奖时间！')
+        return this.$message.error('还没有创建新的抽奖！')
       }
       
       // 开始抽奖的动画
@@ -207,7 +278,7 @@ export default {
       clearTimeout(this.luckButtonHandler)
       this.luckButtonHandler = setTimeout(() => {
         this.calmdown()
-      }, 150)
+      }, 200)
     },
 
     calmdown () {
@@ -220,13 +291,18 @@ export default {
 
       this.luckButtonHandler = setTimeout(() => {
         this.calmdown()
-      }, 150)
+      }, 200)
+    },
+
+    updatePreAllLucks () {
+      this.preAllLucks = this.allLucks.slice(0)
     }
   }
 }
 </script>
 
 <style lang="less">
+
 @keyframes wordloop {
   0% {
     transform: translateX(0);
@@ -241,10 +317,10 @@ export default {
     transform: scale(1);
   }
   40% {
-    transform: scale(1.3);
+    transform: scale(1.2);
   }
   60% {
-    transform: scale(1.2);
+    transform: scale(1.1);
   }
 
   100% {
@@ -267,6 +343,23 @@ export default {
 <style lang="less" scoped>
 @baseFontSize: 20rem;
 
+.progress {
+  width: 60%;
+  height: 0.6rem;
+  border-radius: 0.3rem;
+  line-height: 0;
+  overflow: hidden;
+  background: #fff;
+  margin-top: 0.5rem;
+
+  &-inner {
+    height: 100%;
+    background: #f9ac47;
+    border-radius: 0.2rem;
+    transition: width 50ms;
+  }
+}
+
 .page {
   position: absolute;
   top: 0;
@@ -275,7 +368,7 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgb(155,0,5);
+  background-color: #9b0005;
   background-image: url('../../assets/luck-bg.png');
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -424,5 +517,56 @@ export default {
     }
   }
 }
+}
+
+
+.dialog {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: 0.3s transform ease-in-out;
+  background: rgba(0,0,0,0.5);
+  left: -200%;
+  transform: scale(0);
+  overflow: hidden;
+
+  &-show {
+    left: 0;
+    transform: scale(1);
+  }
+
+  .close-button {
+    position: absolute;
+    width: 40/20rem;
+    height: 40/20rem;
+    border-radius: 50%;
+    top: 10/20rem;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    line-height: 40/20rem;
+  }
+
+  .dialog-inner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10/20rem;
+    background: #333;
+    border-radius: 4/20rem;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1/20rem 4/20rem;
+    max-height: 60%;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    .luckypeople-table {
+      margin-top: 0;
+      padding-bottom: 0;
+    }
+  }
 }
 </style>

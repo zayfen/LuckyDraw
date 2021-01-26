@@ -87,7 +87,7 @@ class Index implements BaseRouter {
     try {
       let value = await CheckinListModel.findOne({ session: body.session })
       console.log('CheckinListModel.findOne: ', value)
-      ctx.body = { code: 0, message: 'success', data: value.users }
+      ctx.body = { code: 0, message: 'success', data: value ? value.users : [] }
     } catch (err) {
       console.log("CheckinListModel.findOne error: ", err)
       let mongoError = err as MongoError

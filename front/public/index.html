@@ -42,22 +42,43 @@
   </head>
   <body>
     <script>
-          // 设计图的逻辑像素除以100
-    var documentElement = document.documentElement
-    function adjustDocumentFontSize () {
-      var fontSize = documentElement.clientWidth / 375 * 20
-      documentElement.style.fontSize = fontSize + 'px'
-    }
-    !function setBodyFontSize () {
-      documentElement.body ? documentElement.body.style.fontSize = "16px" : documentElement.addEventListener('DOMContentLoaded', setBodyFontSize)
-    }()
-    adjustDocumentFontSize()
-    window.addEventListener("resize", adjustDocumentFontSize)
-    window.addEventListener("pageshow", function (evt) {
-      if (evt.persisted) { // page load from cache
-        adjustDocumentFontSize()
-      }
-    })
+      var os = (function() {
+        var ua = navigator.userAgent,
+        isWindowsPhone = /(?:Windows Phone)/.test(ua),
+        isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone, 
+        isAndroid = /(?:Android)/.test(ua), 
+        isFireFox = /(?:Firefox)/.test(ua), 
+        isChrome = /(?:Chrome|CriOS)/.test(ua),
+        isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (isFireFox && /(?:Tablet)/.test(ua)),
+        isPhone = /(?:iPhone)/.test(ua) && !isTablet,
+        isPc = !isPhone && !isAndroid && !isSymbian;
+        return {
+          isTablet: isTablet,
+          isPhone: isPhone,
+          isAndroid : isAndroid,
+          isPc : isPc
+        }
+      }())
+      console.log('isPc: ' + os.isPc)
+      if (!os.isPc) {
+     // 设计图的逻辑像素除以100
+        var documentElement = document.documentElement
+        function adjustDocumentFontSize () {
+          var fontSize = documentElement.clientWidth / 375 * 20
+          documentElement.style.fontSize = fontSize + 'px'
+        }
+        !function setBodyFontSize () {
+          documentElement.body ? documentElement.body.style.fontSize = "16px" : documentElement.addEventListener('DOMContentLoaded', setBodyFontSize)
+        }()
+        adjustDocumentFontSize()
+        window.addEventListener("resize", adjustDocumentFontSize)
+        window.addEventListener("pageshow", function (evt) {
+          if (evt.persisted) { // page load from cache
+            adjustDocumentFontSize()
+          }
+        })       
+      }
+
     </script>
 
     <noscript>
