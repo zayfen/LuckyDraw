@@ -7,6 +7,12 @@ const ProductionConfig: Config = {
     db: 'b4ry4ogxdqsmx10',
     user: 'uo8kdu8o6qx5ygcchmeb',
     password: 'dSKIN4HGn0s0IPJEd7Ks'
+  },
+  minio: {
+    endpoint: 'minio.zayfen.com',
+    useSSL: true,
+    accessKey: 'xxx',
+    secretKey: 'xxxxx'
   }
 }
 

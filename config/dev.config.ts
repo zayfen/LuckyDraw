@@ -7,6 +7,13 @@ const DevConfig: Config = {
     user: 'uo8kdu8o6qx5ygcchmeb',
     password: 'dSKIN4HGn0s0IPJEd7Ks'
   },
+  minio: {
+    endpoint: 'minio.zayfen.com',
+    useSSL: true,
+    accessKey: 'xxxxx',
+    secretKey: 'xxxxx'
+  }
+
   // mongodb: {
   //   uri: 'mongodb://s1.nsloop.com:24657/luckydraw',
   //   db: 'luckydraw',

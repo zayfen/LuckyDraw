@@ -7,9 +7,9 @@ let env: string = process.env.NODE_ENV
 let config: Config = null
 
 if (env === 'production') {
-  config = DevConfig
-} else {
   config = ProductionConfig
+} else {
+  config = DevConfig
 }
 
 export default config

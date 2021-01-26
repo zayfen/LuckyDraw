@@ -11,10 +11,22 @@ import { LuckModel, LuckDocument } from '../../models/luck'
 import { LuckyPeopleDocument, LuckyPeopleModel } from '../../models/lucky_people'
 import { WebSocketManager } from '../../manager/websocket_manager'
 import { MongoError } from 'mongodb'
+import Config from '../../../config/index'
+
+const Minio = require('minio')
 
 function str2hex (str: string): string {
   return Buffer.from(str, 'utf-8').toString('hex')
 }
+
+const client = new Minio.Client({
+  endPoint: Config.minio.endpoint,
+  port: Config.minio.port,
+  useSSL: Config.minio.useSSL,
+  accessKey: Config.minio.accessKey,
+  secretKey: Config.minio.secretKey
+})
+
 
 class Index implements BaseRouter {
   prefix: string = '/'
@@ -22,6 +34,20 @@ class Index implements BaseRouter {
 
   public classMiddlewares(): Array<MiddleWare | string> {
     return ['auth']
+  }
+
+  // 文件上传
+  @GET('/api/minio/presignedUrl')
+  public async fetchPresignedUrl (ctx: Koa.Context) {
+    // ctx.response.set("Access-Control-Allow-Origin", "*");
+    // ctx.response.set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+    // ctx.response.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    
+    const fileName = ctx.request.query.name
+    const res = await client.presignedPutObject('public', 'images/' + fileName)
+    const visitUrl = res.split('?')[0]
+    console.log('/presignedUrl: ', res, ' ; visitUrl: ', visitUrl)
+    ctx.body = { code: 0, data: { url: res, visit_url: visitUrl }}
   }
 
   @POST('/api/register')
