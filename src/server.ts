@@ -59,6 +59,7 @@ app.use(cors({
 const StaticDir: string = path.join(__dirname, '../front/dist/')
 app.use(serve(StaticDir))
 app.use(mount('/register', serve(StaticDir)))
+app.use(mount('/goodluck/2021', serve(StaticDir)))
 
 app.use(router.routes())
 app.use(router.allowedMethods())
