@@ -1,6 +1,6 @@
 <template>
   <div class="register">
-    <p class="title">瓶子科技2020年会抽奖</p>
+    <p class="title">瓶子科技2021年会抽奖</p>
 
     <van-row type="flex" justify="center">
       <van-col :span="8">
