@@ -232,23 +232,10 @@ export default {
       this.$message.error('URL中请指定session')
     } else {
       this.requestLuckSessions()
-      // this.fetchUsers()
     }
-
-    // setInterval(() => {
-    //   this.nowTimestamp = Date.now()
-    // }, 1000);
   },
 
   methods: {
-    // fetchUsers () {
-    //   Api.fetchUsers(this.session).then(res => {
-    //     if (res.code === 0) {
-    //       const users = res.data || []
-    //       this.allPeopleNames = users.map(u => u.user).join('，')
-    //     }
-    //   })
-    // },
 
     requestLuckSessions () {
       Api.fetchLuckSessions(this.session).then(res => {
@@ -521,7 +508,7 @@ export default {
 
 
 .dialog {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   display: block;
