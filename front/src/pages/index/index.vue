@@ -95,9 +95,9 @@
       <lucky-white-list
         :list="participantNameList"
         :session="session"  
-        :style="{transform: whiteListVisible ? 'translateY(35px)' : 'translateY(130%)'}"
+        :style="{transform: whiteListVisible ? 'scale(1)' : 'scale(0)', marginTop: '60px'}"
         @changed="onWhiteListChanged">
-      </lucky-white-list>      
+      </lucky-white-list>
     </div>
 
     <!-- 增加抽奖会话 -->
@@ -105,13 +105,13 @@
       <a 
         class="luck-session-button" 
         href="javascript: void 0;" 
-        @click="luckSessionVisible = !luckSessionVisible"
+        @click="toggleLuckSessionVisible"
       >
         抽奖会话
       </a>
       <luck-board
         class="luck-board"
-        :style="{transform: luckSessionVisible ? 'translateY(35px)' : 'translateY(130%)'}"
+        :style="{transform: luckSessionVisible ? 'scale(1)' : 'scale(0)', marginTop: '60px' }"
         @change="onLuckSessionChange"
       />
     </div>
@@ -370,6 +370,9 @@ export default {
       // eslint-disable-next-line no-console
       console.log('toggle white list')
       this.whiteListVisible = !this.whiteListVisible
+      if (this.whiteListVisible) {
+        this.luckSessionVisible = false
+      }
     },
 
     onWhiteListChanged (list) {
@@ -399,11 +402,18 @@ export default {
       return JSON.parse(forbiddenNamesStr)
     },
 
+
+    toggleLuckSessionVisible () {
+      this.luckSessionVisible = !this.luckSessionVisible
+      if (this.luckSessionVisible) {
+        this.whiteListVisible = false
+      }
+    },
+
     onLuckSessionChange (luckSession) {
       this.currentLuckSession = luckSession
       this.context.numLuckyPeople = this.currentLuckSession ? this.currentLuckSession.count : 0
     },
-
 
     commitLuckyPeople (people) {
       let session = this.currentLuckSession.session

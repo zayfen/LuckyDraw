@@ -142,15 +142,16 @@ export default {
 
 <style lang="less" scoped>
   .lucky-white-list {
-    transition: transform .5s ease-in;
+    transition: transform .3s ease-in-out;
     transition-delay: 0;
-    transform: translateY(-100%);
     width: 80%;
     height: 90%;
     margin: 0 auto;
     overflow: auto;
     text-align: center;
     will-change: transform;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    border-radius: 10px !important;
   }
 </style>
 

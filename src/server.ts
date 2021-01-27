@@ -12,6 +12,9 @@ import Config from '../config'
 import { boot } from './core/boot'
 import TimerTask from './utils/timer_task_utils'
 import { WebSocketManager } from './manager/websocket_manager'
+import { forStatement } from '@babel/types'
+
+import { readFile } from './utils/fs_utils'
 
 const app = websockify(new Koa())
 const router = new Router()
@@ -58,8 +61,8 @@ app.use(cors({
 // render view
 const StaticDir: string = path.join(__dirname, '../front/dist/')
 app.use(serve(StaticDir))
-app.use(mount('/register', serve(StaticDir)))
-app.use(mount('/goodluck/2021', serve(StaticDir)))
+// app.use(mount('/register', serve(StaticDir)))
+// app.use(mount('/goodluck/2021', serve(StaticDir)))
 
 app.use(router.routes())
 app.use(router.allowedMethods())
@@ -68,6 +71,12 @@ app.ws.use(router.routes())
 
 app.on('error', (err: any, ctx: Koa.Context) => {
   console.error("Error: ", err)
+  // 发送html给前端
+  const indexHtmlPath = path.join(StaticDir, 'index.html')
+  const content = readFile(indexHtmlPath)
+  console.log(content)
+  ctx.response.set('Content-Type', 'text/html')
+  ctx.body = content
 })
 
 app.on('db-error', (err: any) => {

@@ -17,6 +17,12 @@
           :prop="session.prop"
           :formatter="session.formatter"
         />
+        <el-table-column label="操作" align="center">
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="edit(scope.$index, scope.row)">修改</el-button>
+            <el-button size="mini" type="weak" @click="deleteRow(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
 
@@ -33,6 +39,7 @@
     <el-dialog 
       title="创建新的抽奖"
       :modal-append-to-body="false"
+      :before-close="toggleLuckSessionForm"
       :visible.sync="formVisible"
     >
       <el-form 
@@ -41,7 +48,7 @@
         ref="formRef"
       >
         <el-form-item label="奖品描述">
-          <el-input v-model="sessionForm.desc" />
+          <el-input v-model="sessionForm.prizes" />
         </el-form-item>
         <el-form-item label="奖品数量">
           <el-input v-model.number="sessionForm.count" />
@@ -57,9 +64,9 @@
         <el-form-item>
           <el-button 
             type="primary"
-            @click="addNewLuckSession"
+            @click="upsertLuckSession"
           >
-          创建
+          {{ sessionForm.luckId ? '更新' : '创建' }}
           </el-button>
           <el-button @click="cancel">取消</el-button>
         </el-form-item>
@@ -119,7 +126,7 @@ export default {
 
       formVisible: false,
       sessionForm: {
-        desc: '',
+        prizes: '',
         count: '',
         startTime: ''
       },
@@ -144,9 +151,56 @@ export default {
   },
 
   methods: {
+
+    edit (index, row) {
+      if (row.finished) {
+        return this.$message.error("禁止修改已结束的抽奖")
+      }
+
+      this.toggleLuckSessionForm()
+      this.sessionForm = row
+      Api.upsertLuckSession(this.sessionForm).then(res => {
+        if (res.code === 0) {
+          this.$message.success('修改成功')
+          this.requestLuckSessions()
+
+        } else {
+          this.$message.error(res.message || '修改失败')
+        }
+
+      }).catch(err => {
+        this.$message.error(err || '修改失败')
+      })
+    },
+
+    deleteRow (index, row) {
+      if (row.finished) {
+        return this.$message.error("禁止删除已结束的抽奖")
+      }
+      Api.deleteLuckSession(row.luckId).then(res => {
+        if (res.code === 0) {
+          this.$message.success('删除成功')
+          this.requestLuckSessions()
+        } else {
+          this.$message.error(res.message || '删除失败')
+        }
+
+      }).catch(err => {
+        this.$message.error(err || '删除失败')
+      })
+
+    },
+
     // 打开创建抽奖会话的form表单
     toggleLuckSessionForm () {
       this.formVisible = !this.formVisible
+      if (!this.formVisible) { // 关闭，则清空sessionForm
+        this.sessionForm = {
+          prizes: '',
+          count: '',
+          startTime: ''
+        }
+      }
     },
 
     requestLuckSessions () {
@@ -166,19 +220,19 @@ export default {
     },
 
     // 添加新的抽奖
-    addNewLuckSession () {
-      if (!this.sessionForm.desc || !this.sessionForm.count || !this.sessionForm.startTime) {
+    upsertLuckSession () {
+      if (!this.sessionForm.prizes || !this.sessionForm.count || !this.sessionForm.startTime) {
         return this.$message.error('请填写合法的表单')
       }
-      Api.commitNewLuckSession({
+      Api.upsertLuckSession({
         session: this.session,
-        prizes: this.sessionForm.desc,
+        prizes: this.sessionForm.prizes,
         count: this.sessionForm.count,
-        startTime: this.sessionForm.startTime
-
+        startTime: this.sessionForm.startTime,
+        luckId: this.sessionForm.luckId
       }).then(res => {
         if (res.code === 0) {
-          this.$message.success('创建成功')
+          this.$message.success(this.sessionForm.luckId ? '修改成功' : '创建成功')
           this.requestLuckSessions()
         }
       }).catch(err => {
@@ -192,7 +246,7 @@ export default {
 
     cancel () {
       this.$refs['formRef'].resetFields()
-      this.formVisible = false
+      this.toggleLuckSessionForm()
     }
   }
 }
@@ -201,10 +255,15 @@ export default {
 
 <style lang="less" scoped>
 .luck-board {
+  transition: transform .3s ease-in-out;
+  transition-delay: 0;
   background: #fff;
   overflow-y: auto;
+  will-change: transform;
   padding: 30px;
   box-sizing: border-box;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  border-radius: 10px;
 
   &-title {
     font-size: 26px;
@@ -212,4 +271,60 @@ export default {
     color: rgb(189,43,36);
   }
 }
+</style>
+
+
+<style lang="less">
+  @mainColor: #BD2B24;
+  @negitiveColor: #42D4DB;
+  .luck-board {
+    color: @mainColor;
+
+    .el-button--primary {
+      background-color: @mainColor;
+      border-color: @mainColor;
+    }
+
+    .el-button--weak {
+      &:hover {
+        color: @mainColor;
+        background-color: #fff;
+        border-color: @mainColor;
+      }
+    }
+
+    .el-table .cell {
+      color: @mainColor;
+    }
+
+    .el-input__inner {
+      height: 30px;
+      line-height: 30px;
+      border-color: @mainColor;
+      color: @mainColor;
+    }
+
+    .el-table td {
+      padding: 5px 0;
+    }
+
+    .el-table th.is-leaf {
+      padding: 5px 0;
+    }
+
+    .user-name {
+      display: inline-block;
+      width: 100%;
+      height: 30px;
+      line-height: 30px;
+    }
+
+    .checkin-status__no {
+    }
+
+    .checkin-status__yes {
+      background-color: rgba(66,212,219,.2);
+    }
+  }
+ 
 </style>

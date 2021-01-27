@@ -93,7 +93,6 @@
             circle 
           />
         </div>
-
         <div class="dialog-inner">
           <div class="luckypeople-table">
             <span class="luckypeople-table-title luck-title">
@@ -156,7 +155,7 @@ export default {
     },
 
     progressValue () {
-      return Math.min(this.luckButtonClicks / 1.3, 100)
+      return Math.min(this.luckButtonClicks / 1.4, 100)
     },
 
     luckButtonStyle () {
@@ -274,7 +273,7 @@ export default {
         this.luckButtonClicks = 0
         return
       }
-      this.luckButtonClicks = this.luckButtonClicks * 0.9
+      this.luckButtonClicks = this.luckButtonClicks * 0.9 // 10%的速率下降
 
       this.luckButtonHandler = setTimeout(() => {
         this.calmdown()
@@ -448,6 +447,7 @@ export default {
     margin-top: 29/@baseFontSize;
     background: url("../../assets/luck_btn.png") no-repeat;
     background-size: 100% 100%;
+    will-change: transform;
     cursor: pointer;
   }
 
@@ -530,25 +530,34 @@ export default {
     width: 40/20rem;
     height: 40/20rem;
     border-radius: 50%;
-    top: 10/20rem;
+    bottom: 25/20rem;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
     line-height: 40/20rem;
+    z-index: 2;
   }
+
+  @paddingTB: 20/20rem;
 
   .dialog-inner {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    padding: 10/20rem;
+    padding-left: 10/20rem;
+    padding-right: 10/20rem;
+    padding-top: @paddingTB;
+    padding-bottom: @paddingTB;
+
     background: #333;
-    border-radius: 4/20rem;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 1/20rem 4/20rem;
+    border-radius: 8/20rem;
     max-height: 60%;
     overflow-x: hidden;
     overflow-y: auto;
+    background: #9b0005;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2/20rem 5/20rem -1/20rem, rgba(0, 0, 0, 0.3) 0px 1/20rem 3/20rem -1/20rem;
+    
 
     .luckypeople-table {
       margin-top: 0;

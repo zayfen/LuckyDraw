@@ -140,26 +140,45 @@ class Index implements BaseRouter {
 
 
   // 创建一个新的奖品抽奖
-  @POST('/api/createLuck')
+  @POST('/api/upsertLuckSession')
   public async createLuck (ctx: Koa.Context) {
-    const { session, prizes, count, startTime } = ctx.request.body
+    let { session, prizes, count, startTime, luckId } = ctx.request.body
+    luckId = luckId || (session + '-' + startTime)
+
     console.log(`/api/createLuck  session: ${session}; prizes: ${prizes}; count: ${count}; startTime: ${startTime}`)
-    const luck = new LuckModel({
+    const model = {
       session,
       prizes,
       count,
       startTime: startTime,
-      luckId: session + '-' + startTime
-    })
+      luckId
+    }
 
     try {
-      const luckDoc: LuckDocument = await luck.save()
+      const luckDoc = await LuckModel.updateOne({ luckId }, model, { upsert: true })
+      // const luckDoc: LuckDocument = await luck.save()
       console.log('/api/createLuck response; ', luckDoc)
       ctx.body = { code: 0, message: 'success', data: luckDoc }
     } catch (err) {
       const mongoError = err as MongoError
       console.log('/api/createLuck error: ', err) 
       ctx.body = { code: mongoError.code, message: mongoError.errmsg }
+    }
+  }
+
+  // 删除一个抽奖会话
+  @POST('/api/deleteLuckSession')
+  public async deleteLuckSession (ctx: Koa.Context) {
+    const { luckId } = ctx.request.body
+    try {
+      const lm = await LuckModel.remove({ luckId })
+      ctx.body = { code: 0, message: 'success', data: lm }
+
+    } catch (err) {
+
+      const mongoErr = err as MongoError
+      console.log('/api/deleteLuckSession error: ', err)
+      ctx.body = { code: mongoErr.code, message: mongoErr.errmsg }
     }
   }
 

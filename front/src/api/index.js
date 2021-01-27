@@ -69,9 +69,18 @@ class Api {
   /**
    * 提交一个新的抽奖会话
    */
-  static commitNewLuckSession ({ session, prizes, count, startTime }) {
-    const url = buildUrl('createLuck')
-    return Net.post(url, { session, prizes, count, startTime })
+  static upsertLuckSession ({ session, prizes, count, startTime, luckId }) {
+    const url = buildUrl('upsertLuckSession')
+    return Net.post(url, { session, prizes, count, startTime, luckId })
+  }
+
+  /**
+   * 删除一个抽奖会话
+   * @param {string} luckId 
+   */
+  static deleteLuckSession (luckId) {
+    const url = buildUrl('deleteLuckSession')
+    return Net.post(url, { luckId })
   }
 
   /**
