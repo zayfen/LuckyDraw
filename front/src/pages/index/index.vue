@@ -1,7 +1,7 @@
 <template>
   <div class="luckydraw" :class="[context.state === context.S_CONFIRM ? 'luckydraw-confirming' : '']">
     <!-- title -->
-    <h2 class="title"><span style="color: #fcea00;">2021</span>年瓶子科技-蜕变.前行，年会抽奖现场</h2>
+    <h2 class="title"><span style="color: #fcea00;">2021</span>新年联欢，抽奖现场</h2>
 
     <el-row style="position: absolute; top: 170px; left: 0; right: 0; bottom: 0;">
       <!-- 签到成功展示区域 -->

@@ -156,7 +156,7 @@ export default {
     },
 
     progressValue () {
-      return Math.min(this.luckButtonClicks / 1.5, 100)
+      return Math.min(this.luckButtonClicks / 1.3, 100)
     },
 
     luckButtonStyle () {
@@ -274,11 +274,11 @@ export default {
       this.luckButtonClicks += 1
       console.log('luckButtonClicks: ', this.luckButtonClicks)
 
-      // 300ms之后，开始冷静
+      // 250ms之后，开始冷静
       clearTimeout(this.luckButtonHandler)
       this.luckButtonHandler = setTimeout(() => {
         this.calmdown()
-      }, 200)
+      }, 250)
     },
 
     calmdown () {
@@ -291,7 +291,7 @@ export default {
 
       this.luckButtonHandler = setTimeout(() => {
         this.calmdown()
-      }, 200)
+      }, 250)
     },
 
     updatePreAllLucks () {
