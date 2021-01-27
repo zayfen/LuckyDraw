@@ -104,6 +104,15 @@ class Api {
     const url = buildUrl(`sessions/${session}/users`)
     return Net.get(url)
   }
+
+  /**
+   * 重置抽奖环境
+   * @param {*} param0 
+   */
+  static resetSession ({ session, token }) {
+    const url = buildUrl('reset')
+    return Net.post(url, { session, token })
+  }
 }
 
 

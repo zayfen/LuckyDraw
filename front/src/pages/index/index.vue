@@ -441,6 +441,8 @@ export default {
   bottom: 0;
 
   background-image: radial-gradient(50% 109%, #F95F4C 42%, #9E1010 100%);
+  // background-image: radial-gradient(farthest-corner at 50% 109%, #F95F4C, #9E1010);
+  // background-image: radial-gradient(farthest-side at 50% 109%, #F95F4C, #9E1010);
   border: 1px solid #979797;
 
   &::before {

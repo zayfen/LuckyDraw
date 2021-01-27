@@ -234,6 +234,29 @@ class Index implements BaseRouter {
       ctx.body = { code: mongoError.code, message: mongoError.errmsg }
     }
   }
+
+
+  @POST('/api/reset')
+  public async resetSession (ctx: Koa.Context) {
+    const { session, token } = ctx.request.body
+    if (token !== 'bottletech2021') {
+      ctx.body = { code: -1, message: 'TOKEN不正确' }
+
+    } else {
+
+      try {
+        await LuckModel.remove({ session })
+        await LuckyPeopleModel.remove({ session }) 
+        console.log("resetSession success")
+        ctx.body = { code: 0, message: '重置环境成功' } 
+
+      } catch (e) {
+        const mongoError = e as MongoError
+        console.error("resetSession error: ", mongoError.errmsg)
+        ctx.body = { code: mongoError.code, message: mongoError.errmsg }
+      }
+    }
+  }
 }
 
 /**

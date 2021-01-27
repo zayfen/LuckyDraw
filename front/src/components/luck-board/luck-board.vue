@@ -36,6 +36,15 @@
       添加新的抽奖
     </el-button>
 
+    <el-button 
+      v-if="showCreateButton"
+      size="small"
+      style="position: absolute; top: 0;right: 180px;margin-top: 20px;"
+      @click="resetSession"
+    >
+      重置抽奖
+    </el-button>
+
     <el-dialog 
       title="创建新的抽奖"
       :modal-append-to-body="false"
@@ -247,6 +256,27 @@ export default {
     cancel () {
       this.$refs['formRef'].resetFields()
       this.toggleLuckSessionForm()
+    },
+
+    resetSession () {
+      this.$prompt('请输入TOKEN', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+        Api.resetSession({ session: this.session, token: value }).then(res => {
+          if (res.code === 0) {
+            let key = this.session + '-lucky-names'
+            localStorage.removeItem(key)
+            this.requestLuckSessions()
+            this.$message.success('已重置抽奖')
+
+          } else {
+            this.$message.error(res.message || '重置失败')
+          }
+        })
+      }).catch(() => {
+        this.$message.error("重置失败")
+      })
     }
   }
 }

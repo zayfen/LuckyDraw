@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"><title>2021年瓶子科技-蜕变.前行，年会抽奖现场</title><style>html, body {
+<!DOCTYPE html><html lang="zh-cmn-Hans"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"><title>2021新年联欢，抽奖现场</title><style>html, body {
         position: absolute;
         top: 0;
         right: 0;
@@ -27,19 +27,39 @@
         background: rgba(0,0,0,0.12);
         -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
         box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-      }</style><link href="/css/app.72204abb.css" rel="preload" as="style"><link href="/css/chunk-vendors.7cc5129d.css" rel="preload" as="style"><link href="/js/app.4da1b148.js" rel="preload" as="script"><link href="/js/chunk-vendors.ea4a46c2.js" rel="preload" as="script"><link href="/css/chunk-vendors.7cc5129d.css" rel="stylesheet"><link href="/css/app.72204abb.css" rel="stylesheet"></head><body><script>    // 设计图的逻辑像素除以100
-    var documentElement = document.documentElement
-    function adjustDocumentFontSize () {
-      var fontSize = documentElement.clientWidth / 375 * 20
-      documentElement.style.fontSize = fontSize + 'px'
-    }
-    !function setBodyFontSize () {
-      documentElement.body ? documentElement.body.style.fontSize = "16px" : documentElement.addEventListener('DOMContentLoaded', setBodyFontSize)
-    }()
-    adjustDocumentFontSize()
-    window.addEventListener("resize", adjustDocumentFontSize)
-    window.addEventListener("pageshow", function (evt) {
-      if (evt.persisted) { // page load from cache
-        adjustDocumentFontSize()
-      }
-    })</script><noscript><strong>We're sorry but front doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script src="/js/chunk-vendors.ea4a46c2.js"></script><script src="/js/app.4da1b148.js"></script></body></html>
+      }</style><link href="/css/app.7005d3e9.css" rel="preload" as="style"><link href="/css/chunk-vendors.7cc5129d.css" rel="preload" as="style"><link href="/js/app.0b848184.js" rel="preload" as="script"><link href="/js/chunk-vendors.76765fd8.js" rel="preload" as="script"><link href="/css/chunk-vendors.7cc5129d.css" rel="stylesheet"><link href="/css/app.7005d3e9.css" rel="stylesheet"></head><body><script>var os = (function() {
+        var ua = navigator.userAgent,
+        isWindowsPhone = /(?:Windows Phone)/.test(ua),
+        isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone, 
+        isAndroid = /(?:Android)/.test(ua), 
+        isFireFox = /(?:Firefox)/.test(ua), 
+        isChrome = /(?:Chrome|CriOS)/.test(ua),
+        isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (isFireFox && /(?:Tablet)/.test(ua)),
+        isPhone = /(?:iPhone)/.test(ua) && !isTablet,
+        isPc = !isPhone && !isAndroid && !isSymbian;
+        return {
+          isTablet: isTablet,
+          isPhone: isPhone,
+          isAndroid : isAndroid,
+          isPc : isPc
+        }
+      }())
+      console.log('isPc: ' + os.isPc)
+      if (!os.isPc) {
+     // 设计图的逻辑像素除以100
+        var documentElement = document.documentElement
+        function adjustDocumentFontSize () {
+          var fontSize = documentElement.clientWidth / 375 * 20
+          documentElement.style.fontSize = fontSize + 'px'
+        }
+        !function setBodyFontSize () {
+          documentElement.body ? documentElement.body.style.fontSize = "16px" : documentElement.addEventListener('DOMContentLoaded', setBodyFontSize)
+        }()
+        adjustDocumentFontSize()
+        window.addEventListener("resize", adjustDocumentFontSize)
+        window.addEventListener("pageshow", function (evt) {
+          if (evt.persisted) { // page load from cache
+            adjustDocumentFontSize()
+          }
+        })       
+      }</script><noscript><strong>We're sorry but front doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script src="/js/chunk-vendors.76765fd8.js"></script><script src="/js/app.0b848184.js"></script></body></html>

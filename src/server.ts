@@ -69,14 +69,22 @@ app.use(router.allowedMethods())
 
 app.ws.use(router.routes())
 
+app.use(async (ctx: Koa.Context, next: () => void) => {
+  await next()
+  console.log('status: ', ctx.status)
+  // 404就发送html
+  if (ctx.status == 404) {
+    // 发送html给前端
+    const indexHtmlPath = path.join(StaticDir, 'index.html')
+    const content = readFile(indexHtmlPath)
+    ctx.response.set('Content-Type', 'text/html')
+    ctx.body = content
+  }
+})
+
 app.on('error', (err: any, ctx: Koa.Context) => {
   console.error("Error: ", err)
-  // 发送html给前端
-  const indexHtmlPath = path.join(StaticDir, 'index.html')
-  const content = readFile(indexHtmlPath)
-  console.log(content)
-  ctx.response.set('Content-Type', 'text/html')
-  ctx.body = content
+
 })
 
 app.on('db-error', (err: any) => {
