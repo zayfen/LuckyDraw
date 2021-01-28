@@ -69,6 +69,7 @@ class Index implements BaseRouter {
         return ctx.body = { code: -2, message: '非法用户，请联系管理员添加用户!' }
       }
       
+      
       let userDoc: UserDocument = await user.save()
       let message: string = JSON.stringify({ action: 'NewUser', data: { user: userDoc.user, avatar: userDoc.avatar, session: userDoc.session } })
       WebSocketManager.getInstance().dispatchSessionMessage(body.session, message)

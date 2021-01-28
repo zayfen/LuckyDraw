@@ -13,6 +13,7 @@ const UserSchema: Schema= new Schema({
   sid: { type: Schema.Types.String, required: true, unique: true }
 })
 
+// FIXME: 有可能创建Index失败
 UserSchema.index({ sid: 1 }, { unique: true })
 
 export const UserModel: Model<UserDocument> = model('User', UserSchema)
