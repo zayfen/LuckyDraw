@@ -24,7 +24,7 @@
     "@types/mongoose": "^5.5.34",
     "@types/nedb": "^1.8.9",
     "chai": "^4.2.0",
-    "mocha": "^6.2.0",
+    "mocha": "^10.2.0",
     "tsconfig-paths": "^3.9.0"
   },
   "dependencies": {
